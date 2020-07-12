@@ -1,0 +1,90 @@
+$primary: #114AAF;
+$dark: #2A4365;
+$light: #E2E8F0;
+$secondary: #718096;
+$accent: #1A202C;
+$gray: #A0AEC0; // placeholders
+$white: #FFFFFF;    // Status colors
+$red: #E53E3E; // Error
+$green: #38A169; // Success
+$orange: #D69E2E; // Warn
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font-size: 16px;
+  transition: all ease-in-out 300ms;
+  box-sizing: border-box;
+}
+
+#root {
+  height: 100vh;
+}
+
+.logo {
+  height: 60px;
+}
+
+button {
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+}
+
+.btn {
+  border-radius: 6px;
+  padding: 8px 16px;
+  svg {
+    // fill: ${(props) => props.theme.colors.secondary};
+    vertical-align: middle;
+    margin-bottom: 2px;
+    height: 20px;
+  }
+  &.icon-left{
+    svg {
+      margin-right: 8px;
+    }
+  }
+  &.icon-right{
+     svg {margin-left: 8px;}
+  }
+}
+
+.btn-primary {
+  background: $primary;
+  color: $white;
+  svg {
+    fill: $primary;
+  }
+  &.link {
+    background: $white;
+    color: $primary;
+    padding-left: 0;
+    padding-right: 0;
+    svg {
+      fill: $primary !important;
+    }
+  }
+}
+
+.flex{
+  display: flex;
+}
+
+.justify-space-between {
+  justify-content: space-between;
+}
