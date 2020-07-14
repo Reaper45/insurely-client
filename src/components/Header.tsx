@@ -1,10 +1,10 @@
-import React from 'react';
-import {Link} from 'react-router-dom';
+import React from "react";
+import { Link } from "react-router-dom";
 
 import styled from "emotion";
+import { Container } from "./ui";
 
 import { ReactComponent as CloseIcon } from "assets/icons/icon-x.svg";
-import { Container } from "./ui";
 
 const HeaderWrapper = styled("header")`
   padding: 15px 0;
@@ -53,7 +53,7 @@ const NavWrapper = styled("nav")`
   }
 `;
 
-const Brand = styled('img')`
+const Brand = styled("img")`
   height: 50px;
 `;
 
@@ -80,4 +80,4 @@ const Header: React.FC<{ title?: string }> = ({ title }) => {
   );
 };
 
-export default Header; 
+export default Header;

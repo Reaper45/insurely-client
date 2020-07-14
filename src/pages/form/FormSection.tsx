@@ -1,10 +1,11 @@
 import React from "react";
 
+import { IForm, IFormField } from "types";
+
 import styled from "emotion";
 import { Input } from "components/ui";
-
-import { IForm, IFormField } from "types";
 import Radio from "components/ui/RadioButton";
+import FormMessages from "components/ui/FormMessages";
 
 const InputGroup = styled("div")`
   display: flex;
@@ -29,14 +30,16 @@ const InputGroup = styled("div")`
 `;
 
 const FormSectionWrapper = styled("div")<{ active: boolean }>`
-  display: ${props => props.active ? "block" : "none"};
+  display: ${(props) => (props.active ? "block" : "none")};
 `;
 
 const FormSection: React.FC<{ form: IForm; active: boolean }> = ({
-  active, form,
+  active,
+  form,
 }) => {
   return (
     <FormSectionWrapper active={active}>
+      <FormMessages messages={form.messages} />
       {form.fields.map((field: IFormField) => {
         let input = <Input key={field.name} {...field} />;
         if (field.type === "group") {

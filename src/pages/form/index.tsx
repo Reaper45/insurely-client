@@ -1,8 +1,8 @@
 import React, { useState } from "react";
 
-import styled from "emotion";
 import { IFormSection } from "types";
 
+import styled from "emotion";
 import { Container, PageFooter } from "components/ui";
 import PageLayout from "components/PageLayout";
 import FormSection from "./FormSection";
@@ -26,11 +26,11 @@ const QuotationForm = () => {
   };
 
   const prev = (state: number) => {
-    if (state > 1)  setStep(state - 1);
+    if (state > 1) setStep(state - 1);
   };
 
   // Get form section to reflect on the title
-  const getSection = () => quotationForm.find(sec => sec.step === step);
+  const getSection = () => quotationForm.find((sec) => sec.step === step);
 
   return (
     <PageLayout title={`Step ${getSection()?.section} of 4`}>
@@ -42,7 +42,7 @@ const QuotationForm = () => {
                 padding: "1.5rem 0",
               }}
             >
-              {quotationForm.map((formSection: IFormSection) => (
+              {quotationForm.map(formSection => (
                 <FormSection
                   key={formSection.step}
                   form={formSection.form}

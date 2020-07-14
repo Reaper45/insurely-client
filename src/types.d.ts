@@ -13,11 +13,13 @@ interface IFormField extends IField {
   options?: OptionType[];
 }
 
+interface IMessage {
+  key: string;
+  message: string;
+}
+
 interface IForm {
-  messages: {
-    key: string;
-    message: string;
-  }[];
+  messages: IMessage[];
   fields: IFormField[];
 }
 

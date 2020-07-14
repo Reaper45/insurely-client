@@ -4,7 +4,7 @@ import { OptionType, IFormSection } from "types";
 const generateYears = (limit: number): OptionType[] => {
   const currentYear = new Date().getFullYear();
   const options = [];
-  for (let index = currentYear; index > (currentYear - limit); index--) {
+  for (let index = currentYear; index > currentYear - limit; index--) {
     options.push({
       value: `${index}`,
       label: `${index}`,

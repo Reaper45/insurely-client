@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 import Header from "./Header";
 import { Main } from "./ui";
@@ -10,9 +10,7 @@ const PageLayout: React.FC<{
   return (
     <>
       <Header title={title} />
-      <Main>
-        {children(props)}
-      </Main>
+      <Main>{children(props)}</Main>
     </>
   );
 };

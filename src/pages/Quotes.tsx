@@ -1,11 +1,7 @@
-import React from 'react'
+import React from "react";
 
 const Quotes = () => {
-  return (
-    <div>
-      Quotes
-    </div>
-  )
-}
+  return <div>Quotes</div>;
+};
 
-export default Quotes
+export default Quotes;

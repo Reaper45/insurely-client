@@ -1,4 +1,4 @@
-import React from 'react'
+import React from "react";
 
 import styled from "emotion";
 
@@ -48,7 +48,6 @@ const RadioWrapper = styled("label")<{ checked?: boolean }>`
     content: "";
     display: block;
   }
-  /* Style the checkmark/indicator */
   .checkmark:after {
     width: 8px;
     height: 8px;
