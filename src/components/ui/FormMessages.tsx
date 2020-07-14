@@ -5,12 +5,18 @@ import { IMessage } from "types";
 
 const FormMessagesWrapper = styled("div")`
   padding: 1.5rem 0;
-  margin-bottom: 2rem;
+  margin-bottom: 1rem;
   > div:first-of-type > div {
     border-bottom-left-radius: 0;
   }
   > div:nth-of-type(2) > div {
     border-top-left-radius: 0;
+  }
+  > div:last-of-type > div {
+    margin-bottom: 0;
+  }
+  @media (min-width: 768px) {
+    margin-bottom: 2rem;
   }
 `;
 
