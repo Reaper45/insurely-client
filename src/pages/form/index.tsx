@@ -1,40 +1,81 @@
-import React from 'react';
+import React, { useState } from "react";
 
 import styled from "emotion";
-import { Container, Main, PageFooter } from "components/ui";
+import { IFormSection } from "types";
+
+import { Container, PageFooter } from "components/ui";
+import PageLayout from "components/PageLayout";
+import FormSection from "./FormSection";
+import quotationForm from "./quotation-form";
+
 import { ReactComponent as CloseLeftIcon } from "assets/icons/icon-cheveron-left.svg";
-import PersonalInfoForm from "./PersonalInfoForm";
 
 const FormContainer = styled("div")`
   width: 100%;
   @media (min-width: 768px) {
-    max-width: 50%;
+    max-width: 530px;
+    width: 50%;
   }
 `;
 
 const QuotationForm = () => {
+  const [step, setStep] = useState(1);
+
+  const next = (state: number) => {
+    if (state !== quotationForm.length) setStep(state + 1);
+  };
+
+  const prev = (state: number) => {
+    if (state > 1)  setStep(state - 1);
+  };
+
+  // Get form section to reflect on the title
+  const getSection = () => quotationForm.find(sec => sec.step === step);
+
   return (
-    <Main>
-      <Container>
-        <FormContainer style={{
-            padding: "1.5rem 0"
-        }}>
-          <PersonalInfoForm />
-        </FormContainer>
-      </Container>
-      <PageFooter>
-        <Container>
-          <FormContainer className="flex justify-space-between">
-            <button className="btn btn-primary link icon-left">
-              <CloseLeftIcon />
-              Back
-            </button>
-            <button className="btn btn-primary">Next</button>
-          </FormContainer>
-        </Container>
-      </PageFooter>
-    </Main>
+    <PageLayout title={`Step ${getSection()?.section} of 4`}>
+      {() => (
+        <>
+          <Container>
+            <FormContainer
+              style={{
+                padding: "1.5rem 0",
+              }}
+            >
+              {quotationForm.map((formSection: IFormSection) => (
+                <FormSection
+                  key={formSection.step}
+                  form={formSection.form}
+                  active={formSection.step === step}
+                />
+              ))}
+            </FormContainer>
+          </Container>
+          <PageFooter>
+            <Container>
+              <FormContainer className="flex justify-space-between">
+                <button
+                  onClick={() => prev(step)}
+                  disabled={step === 1}
+                  className="btn btn-primary link icon-left"
+                >
+                  <CloseLeftIcon />
+                  Back
+                </button>
+                <button
+                  // disabled={}
+                  onClick={() => next(step)}
+                  className="btn btn-primary"
+                >
+                  {step === quotationForm.length ? "Get Quote" : "Next"}
+                </button>
+              </FormContainer>
+            </Container>
+          </PageFooter>
+        </>
+      )}
+    </PageLayout>
   );
-}
+};
 
 export default QuotationForm;

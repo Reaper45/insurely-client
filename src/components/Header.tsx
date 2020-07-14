@@ -30,9 +30,11 @@ const NavWrapper = styled("nav")`
       left: -50%;
       top: 40px;
       transition-delay: 100ms;
+      font-size: 0.75rem;
       @media (min-width: 768px) {
         background: ${(props) => props.theme.colors.white};
         position: initial;
+        font-size: 1rem;
       }
     }
     @media (min-width: 768px) {
@@ -55,7 +57,7 @@ const Brand = styled('img')`
   height: 50px;
 `;
 
-const Header: React.FC<{ page: string }> = ({ page = "0" }) => {
+const Header: React.FC<{ title?: string }> = ({ title }) => {
   return (
     <HeaderWrapper>
       <Container>
@@ -63,11 +65,11 @@ const Header: React.FC<{ page: string }> = ({ page = "0" }) => {
           <Link to="/">
             <Brand src={require("../assets/img/logo.png")} alt="Insurely" />
           </Link>
-          <div className="title">
-            <div>
-              Step {page} of 4
+          {title && (
+            <div className="title">
+              <div>{title}</div>
             </div>
-          </div>
+          )}
           <button className="btn-close">
             Cancel
             <CloseIcon />
@@ -76,6 +78,6 @@ const Header: React.FC<{ page: string }> = ({ page = "0" }) => {
       </Container>
     </HeaderWrapper>
   );
-}
+};
 
 export default Header; 
