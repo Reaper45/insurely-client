@@ -27,7 +27,6 @@ const baseInputStyles = css(`
   padding: 1rem;
   font-size: 14px;
   width: 100%;
-  margin-bottom: 2rem;
   outline: none;
   @media (min-width: 768px) {
     padding: 1.25rem 1.375rem;
@@ -46,6 +45,10 @@ const Input = styled("input")`
     transition-duration: 0;
     border-color: ${(props) => props.theme.colors.primary};
   }
+  &.error {
+    border-color: ${(props) => props.theme.colors.red};
+  }
+
 `;
 
 export { baseInputStyles, Container, Main, Input, PageFooter };

@@ -27,6 +27,7 @@ interface IForm {
 
 interface IFormSection {
   form: IForm;
-  step: number;
+  stepNumber: number;
   section: string;
+  validationSchema?: object
 }

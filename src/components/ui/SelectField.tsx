@@ -6,6 +6,7 @@ import { IFormField, OptionType } from "types";
 import { baseInputStyles } from "components/ui";
 
 import { ReactComponent as CheveronDown } from "assets/icons/icon-cheveron-down.svg";
+import { FieldProps, useField } from "formik";
 
 const SelectFormFieldWrapper = styled("div")<{ active: boolean }>`
   ${baseInputStyles}
@@ -26,15 +27,15 @@ const SelectFormFieldInput = styled("div")<{ active: boolean }>`
     margin-right: -5px;
   }
   span {
-    &.label {
+    &.placeholder {
       font-size: 14px;
     }
     &.icon {
-      max-height: 17px;
+      max-height: 16px;
       margin-top: -6px;
     }
     @media (min-width: 768px) {
-      &.label {
+      &.placeholder {
         font-size: 16px;
       }
     }
@@ -81,13 +82,19 @@ const SelectFormFieldOption = styled("div")<{ selected?: boolean }>`
   }
 `;
 
-const SelectFormField: React.FC<{ field: IFormField }> = ({ field }) => {
+const SelectField: React.FC<Partial<FieldProps> & Partial<IFormField>> = ({
+  options,
+  placeholder,
+  name,
+}) => {
   const [active, setActive] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
+  const [field, , helpers] = useField(name || "");
 
   // Handle options when selected
   const handleChange = (selected: OptionType) => {
     setSelected(selected.value);
+    helpers.setValue(selected.value);
     setActive(false);
   };
 
@@ -109,16 +116,21 @@ const SelectFormField: React.FC<{ field: IFormField }> = ({ field }) => {
     };
   }, []);
 
+  const label = (value: string) => {
+    const option = options?.find((opt) => opt.value === value);
+    return option ? option.label : null
+  }
+
   return (
     <SelectFormFieldWrapper active={active} ref={selectNode}>
       <SelectFormFieldInput active={active} onClick={() => setActive(!active)}>
-        <span className="label">{selected || field.placeholder}</span>
+        <span className="placeholder">{label(field.value) || placeholder}</span>
         <span className="icon">
           <CheveronDown />
         </span>
       </SelectFormFieldInput>
       <SelectFormFieldOptions active={active}>
-        {field.options!.map((opt) => (
+        {options!.map((opt) => (
           <SelectFormFieldOption
             key={opt.key}
             selected={opt.value === selected}
@@ -132,4 +144,4 @@ const SelectFormField: React.FC<{ field: IFormField }> = ({ field }) => {
   );
 };
 
-export default SelectFormField;
+export default SelectField;

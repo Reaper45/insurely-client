@@ -1,14 +1,13 @@
 import React from "react";
+import { Field } from "formik";
 
 import { IForm, IFormField } from "types";
-
 import styled from "emotion";
-import { Input } from "components/ui";
-import Radio from "components/ui/RadioButton";
-import FormMessages from "components/ui/FormMessages";
-import SelectFormField from "components/ui/SelectFormField";
 
-const InputGroup = styled("div")`
+import FormMessages from "components/ui/FormMessages";
+import { InputField, RadioFormField, SelectFormField } from "./FormFields";
+
+const GroupInput = styled("div")`
   display: flex;
   justify-content: space-between;
   flex-direction: row;
@@ -30,70 +29,42 @@ const InputGroup = styled("div")`
   }
 `;
 
-const FieldWrapper = styled("div")`
-  position: relative;
-  span.label {
-    font-weight: bold;
-    font-size: 14px;
-    color: ${(props) => props.theme.colors.secondary};
-    position: absolute;
-    right: 1rem;
-    top: 1rem;
-    @media (min-width: 768px) {
-      font-size: 16px;
-      right: 1.375rem;
-      top: 1.25rem;
-    }
-  }
-`;
-
 const FormSectionWrapper = styled("div")<{ active: boolean }>`
   display: ${(props) => (props.active ? "block" : "none")};
 `;
 
-const FormSection: React.FC<{ form: IForm; active: boolean }> = ({
-  active,
-  form,
-}) => {
+const FormSection: React.FC<{
+  form: IForm;
+  active: boolean;
+}> = ({ active, form }) => {
   return (
     <FormSectionWrapper active={active}>
       <FormMessages messages={form.messages} />
       {form.fields.map((field: IFormField) => {
-        let input = (
-          <FieldWrapper key={field.name}>
-            <Input {...field} />
-            {field.label && <span className="label">{field.label}</span>}
-          </FieldWrapper>
-        );
         if (field.type === "group") {
-          input = (
-            <InputGroup key={field.name}>
+          return (
+            <GroupInput key={field.name}>
               {field.children!.map((child: any) => (
-                <FieldWrapper key={child.name}>
-                  <Input {...child} />
-                </FieldWrapper>
+                <Field component={InputField} key={child.name} {...child} />
               ))}
-            </InputGroup>
+            </GroupInput>
           );
         }
         if (field.type === "radio") {
-          input = (
-            <FieldWrapper key={field.name}>
-              {field.options!.map((opt) => (
-                <Radio
-                  key={opt.key}
-                  name={field.name}
-                  label={opt.label}
-                  value={opt.value}
-                />
-              ))}
-            </FieldWrapper>
+          return (
+            <RadioFormField
+              key={field.name}
+              name={field.name}
+              options={field.options}
+            />
           );
         }
         if (field.type === "select") {
-          input = <SelectFormField key={field.name} field={field} />;
+          return (
+            <Field component={SelectFormField} key={field.name} {...field} />
+          );
         }
-        return input;
+        return <Field component={InputField} key={field.name} {...field} />;
       })}
     </FormSectionWrapper>
   );

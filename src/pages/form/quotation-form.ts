@@ -1,4 +1,5 @@
 import { OptionType, IFormSection } from "types";
+import * as Yup from "yup";
 
 //
 const generateYears = (limit: number): OptionType[] => {
@@ -29,7 +30,7 @@ const generateMonths = (): OptionType[] => {
 
 const quotationFormSections: IFormSection[] = [
   {
-    step: 1,
+    stepNumber: 1,
     section: "1",
     form: {
       messages: [
@@ -48,16 +49,16 @@ const quotationFormSections: IFormSection[] = [
           name: "name",
           children: [
             {
-              name: "fname",
+              name: "firstName",
               type: "text",
               placeholder: "First name",
-              required: true,
+              // required: true,
             },
             {
-              name: "lname",
+              name: "lastName",
               type: "text",
               placeholder: "Last name",
-              required: true,
+              // required: true,
             },
           ],
         },
@@ -75,9 +76,14 @@ const quotationFormSections: IFormSection[] = [
         },
       ],
     },
+    validationSchema: Yup.object({
+      firstName: Yup.string().required("Required"),
+      lastName: Yup.string().required("Required"),
+    }),
+    // requiresVerification: true,
   },
   {
-    step: 2,
+    stepNumber: 2,
     section: "2",
     form: {
       messages: [
@@ -118,7 +124,7 @@ const quotationFormSections: IFormSection[] = [
     },
   },
   {
-    step: 3,
+    stepNumber: 3,
     section: "2",
     form: {
       messages: [
@@ -140,13 +146,13 @@ const quotationFormSections: IFormSection[] = [
           type: "text",
           placeholder: "Value of my car",
           required: true,
-          label: "KSH"
+          label: "KSH",
         },
       ],
     },
   },
   {
-    step: 4,
+    stepNumber: 4,
     section: "3",
     form: {
       messages: [
@@ -183,7 +189,7 @@ const quotationFormSections: IFormSection[] = [
     },
   },
   {
-    step: 5,
+    stepNumber: 5,
     section: "4",
     form: {
       messages: [
@@ -208,5 +214,17 @@ const quotationFormSections: IFormSection[] = [
     },
   },
 ];
+
+export interface IQuotationFormValues {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phoneNumber: string;
+  vehicleUse: string;
+  yearOfManufacture: string;
+  sumInsured: string;
+  typeOfCover: string;
+  duration: string;
+}
 
 export default quotationFormSections;

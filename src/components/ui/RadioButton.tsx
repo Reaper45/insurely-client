@@ -1,4 +1,5 @@
 import React from "react";
+import { Field } from "formik";
 
 import styled from "emotion";
 
@@ -67,7 +68,7 @@ const Radio: React.FC<{ label: string; value: string; name?: string }> = ({
   return (
     <RadioWrapper htmlFor={value}>
       {label}
-      <input id={value} type="radio" name={name} value={value} />
+      <Field id={value} type="radio" name={name} value={value} />
       <span className="checkmark"></span>
     </RadioWrapper>
   );
