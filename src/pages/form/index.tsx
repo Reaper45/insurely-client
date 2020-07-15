@@ -31,7 +31,10 @@ const QuotationForm = () => {
   const getSection = () => quotationForm.find((sec) => sec.step === step);
 
   return (
-    <PageLayout title={`Step ${getSection()?.section} of 4`}>
+    <PageLayout
+      title={`Step ${getSection()?.section} of 4`}
+      onLogoClick={() => setStep(1)}
+    >
       {() => (
         <>
           <Container>

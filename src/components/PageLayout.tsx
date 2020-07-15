@@ -6,10 +6,11 @@ import { Main } from "./ui";
 const PageLayout: React.FC<{
   children: <T>(props: T) => React.ReactElement;
   title: string;
-}> = ({ children, title, ...props }) => {
+  onLogoClick?: (props: any) => void;
+}> = ({ children, onLogoClick, title, ...props }) => {
   return (
     <>
-      <Header title={title} />
+      <Header onLogoClick={onLogoClick} title={title} />
       <Main>{children(props)}</Main>
     </>
   );

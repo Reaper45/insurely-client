@@ -60,12 +60,12 @@ const Brand = styled("img")`
   }
 `;
 
-const Header: React.FC<{ title?: string }> = ({ title }) => {
+const Header: React.FC<{ onLogoClick?: (props: any) => void; title?: string }> = ({ onLogoClick, title }) => {
   return (
     <HeaderWrapper>
       <Container>
         <NavWrapper>
-          <Link to="/">
+          <Link onClick={onLogoClick && onLogoClick} to="/">
             <Brand src={require("../assets/img/logo.png")} alt="Insurely" />
           </Link>
           {title && (
