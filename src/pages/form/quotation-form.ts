@@ -140,6 +140,7 @@ const quotationFormSections: IFormSection[] = [
           type: "text",
           placeholder: "Value of my car",
           required: true,
+          label: "KSH"
         },
       ],
     },

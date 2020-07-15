@@ -1,4 +1,5 @@
 import styled from "emotion";
+import { css } from "@emotion/core";
 
 const Container = styled("div")`
   width: 90%;
@@ -21,13 +22,23 @@ const PageFooter = styled("div")`
   background: #fff;
 `;
 
-const Input = styled("input")`
+const baseInputStyles = css(`
   border-radius: 6px;
   padding: 1rem;
-  border: solid 1px ${(props) => props.theme.colors.light};
   font-size: 14px;
   width: 100%;
   margin-bottom: 2rem;
+  outline: none;
+  @media (min-width: 768px) {
+    padding: 1.25rem 1.375rem;
+    font-size: 16px;
+    border-radius: 8px;
+  }
+`);
+
+const Input = styled("input")`
+  ${baseInputStyles}
+  border: solid 1px ${(props: any) => props.theme.colors.light};
   ::placeholder {
     color: ${(props) => props.theme.colors.gray};
   }
@@ -35,11 +46,6 @@ const Input = styled("input")`
     transition-duration: 0;
     border-color: ${(props) => props.theme.colors.primary};
   }
-  @media (min-width: 768px) {
-    padding: 1.25rem 1.375rem;
-    font-size: 16px;
-    border-radius: 8px;
-  }
 `;
 
-export { Container, Main, Input, PageFooter };
+export { baseInputStyles, Container, Main, Input, PageFooter };

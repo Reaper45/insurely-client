@@ -6,7 +6,9 @@ type OptionType = {
   label: string;
 };
 // 
-interface IField extends InputHTMLAttributes<HTMLInputElement>  {}
+interface IField extends InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+}
 
 interface IFormField extends IField {
   children?: IField[];

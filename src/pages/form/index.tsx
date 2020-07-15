@@ -1,7 +1,5 @@
 import React, { useState } from "react";
 
-import { IFormSection } from "types";
-
 import styled from "emotion";
 import { Container, PageFooter } from "components/ui";
 import PageLayout from "components/PageLayout";
@@ -42,7 +40,7 @@ const QuotationForm = () => {
                 padding: "1.5rem 0",
               }}
             >
-              {quotationForm.map(formSection => (
+              {quotationForm.map((formSection) => (
                 <FormSection
                   key={formSection.step}
                   form={formSection.form}

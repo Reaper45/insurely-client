@@ -54,7 +54,10 @@ const NavWrapper = styled("nav")`
 `;
 
 const Brand = styled("img")`
-  height: 50px;
+  height: 40px;
+  @media (min-width: 768px) {
+    height: 50px;
+  }
 `;
 
 const Header: React.FC<{ title?: string }> = ({ title }) => {
@@ -70,10 +73,12 @@ const Header: React.FC<{ title?: string }> = ({ title }) => {
               <div>{title}</div>
             </div>
           )}
-          <button className="btn-close">
-            Cancel
-            <CloseIcon />
-          </button>
+          <div>
+            <button className="btn-close">
+              Cancel
+              <CloseIcon />
+            </button>
+          </div>
         </NavWrapper>
       </Container>
     </HeaderWrapper>
