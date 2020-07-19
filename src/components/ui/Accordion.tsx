@@ -21,6 +21,7 @@ const AccordionItem = styled("div")<{ active: boolean }>`
     align-item: center;
     justify-content: space-between;
     cursor: pointer;
+    margin-bottom: .5rem;
     .title {
       font-weight: 700;
       font-size: 14px;
@@ -44,7 +45,7 @@ const Accordion: React.FC<{
 }> = ({ items }) => {
   const [active, setActive] = useState<null | string>(null);
   useEffect(() => {
-    setActive(items[0].key);
+    setActive(items[1].key);
   }, [items]);
   return (
     <div>

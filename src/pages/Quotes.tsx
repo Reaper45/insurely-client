@@ -11,6 +11,7 @@ import ProductOptionalBenefits from "components/product/ProductOptionalBenefits"
 import Accordion from "components/ui/Accordion";
 
 import { ReactComponent as CheveronUpIcon } from "assets/icons/icon-cheveron-up.svg";
+import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
@@ -92,7 +93,7 @@ interface IState {
 }
 
 const initialState: IState = {
-  productId: null,
+  productId: "1",
   showDetails: false,
 };
 
@@ -193,8 +194,7 @@ const Quotes: React.FC<IQuotesProps> = () => {
                         {
                           key: "cover-summary",
                           title: "Cover Summary",
-                          render: () => <ProductBenefits benefits={[
-                          ]} />,
+                          render: () => <ProductBenefits benefits={[]} />,
                         },
                         {
                           key: "select-optional-benefits",
@@ -211,7 +211,33 @@ const Quotes: React.FC<IQuotesProps> = () => {
             </QuotesWrapper>
           </Container>
           <PageFooter>
-            <Container></Container>
+            <Container className="flex justify-space-between">
+              <button
+                // onClick={() => prev()}
+                className="btn btn-primary link icon-left"
+                type="button"
+              >
+                <CheveronLeftIcon />
+                Back
+              </button>
+              <div className="flex">
+                <button
+                  // onClick={() => prev()}
+                  className="btn btn-secondary link icon-left mr-2"
+                  type="button"
+                >
+                  Email me the quotation
+                </button>
+                <button
+                  // disabled={}
+                  // onClick={() => next(stepNumber)}
+                  className="btn btn-primary"
+                  type="submit"
+                >
+                  Pay now
+                </button>
+              </div>
+            </Container>
           </PageFooter>
         </>
       )}

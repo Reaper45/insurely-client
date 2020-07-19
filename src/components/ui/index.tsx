@@ -27,7 +27,7 @@ const baseInputStyles = css(`
   padding: 1rem;
   font-size: 14px;
   width: 100%;
-  outline: none;
+  // outline: none;
   @media (min-width: 768px) {
     padding: 1.25rem 1.375rem;
     font-size: 16px;
@@ -44,6 +44,7 @@ const Input = styled("input")`
   :focused {
     transition-duration: 0;
     border-color: ${(props) => props.theme.colors.primary};
+    color: ${(props) => props.theme.colors.dark};
   }
   &.error {
     border-color: ${(props) => props.theme.colors.red};

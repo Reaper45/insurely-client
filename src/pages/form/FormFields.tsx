@@ -10,6 +10,7 @@ import SelectField from "components/ui/SelectField";
 
 export const FieldWrapper = styled("div")`
   margin-bottom: 1.375rem;
+  position: relative;
   @media (min-width: 768px) {
     margin-bottom: 2rem;
   }
@@ -18,10 +19,11 @@ export const FieldWrapper = styled("div")`
     font-size: 14px;
     color: ${(props) => props.theme.colors.secondary};
     position: absolute;
-    left: 1rem;
+    right: 1rem;
     @media (min-width: 768px) {
       font-size: 16px;
-      left: 1.375rem;
+      top: 1.25rem;
+      right: 1.375rem;
     }
   }
 `;
