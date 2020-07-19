@@ -23,7 +23,7 @@ const PageFooter = styled("div")`
 `;
 
 const baseInputStyles = css(`
-  border-radius: 6px;
+  border-radius: 4px;
   padding: 1rem;
   font-size: 14px;
   width: 100%;

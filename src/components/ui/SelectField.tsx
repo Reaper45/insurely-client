@@ -1,4 +1,5 @@
 import React, { useState, createRef, RefObject, useEffect } from "react";
+import { FieldProps, useField } from "formik";
 
 import styled from "emotion";
 import { IFormField, OptionType } from "types";
@@ -6,7 +7,6 @@ import { IFormField, OptionType } from "types";
 import { baseInputStyles } from "components/ui";
 
 import { ReactComponent as CheveronDown } from "assets/icons/icon-cheveron-down.svg";
-import { FieldProps, useField } from "formik";
 
 const SelectFormFieldWrapper = styled("div")<{ active: boolean }>`
   ${baseInputStyles}

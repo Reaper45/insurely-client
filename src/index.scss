@@ -11,7 +11,7 @@ $orange: #D69E2E; // Warn
 
 body {
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+  font-family: 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -72,7 +72,7 @@ button {
   background: $primary;
   color: $white;
   svg {
-    fill: $primary;
+    fill: $white;
   }
   &.link {
     background: $white;
@@ -91,4 +91,8 @@ button {
 
 .justify-space-between {
   justify-content: space-between;
+}
+
+.w-full{
+  width: 100%;
 }

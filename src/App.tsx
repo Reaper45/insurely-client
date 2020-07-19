@@ -8,8 +8,10 @@ function App() {
   return (
     <>
       <Switch>
-        <Route path="/">{() => <QuotationForm />}</Route>
-        <Route path="/quotation" component={Quotes} />
+        <Route path="/" exact>
+          {(props) => <QuotationForm {...props} />}
+        </Route>
+        <Route path="/quotations" component={Quotes} />
       </Switch>
     </>
   );

@@ -31,24 +31,27 @@ const NavWrapper = styled("nav")`
       top: 40px;
       transition-delay: 100ms;
       font-size: 0.75rem;
-      @media (min-width: 768px) {
+      @media (min-width: 481px) {
         background: ${(props) => props.theme.colors.white};
         position: initial;
         font-size: 1rem;
       }
     }
-    @media (min-width: 768px) {
+    @media (min-width: 481px) {
       position: initial;
     }
   }
   .btn-close {
     color: ${(props) => props.theme.colors.secondary};
     text-align: right;
-    min-width: 170px;
+    min-width: 113px;
     svg {
       fill: ${(props) => props.theme.colors.secondary};
       vertical-align: middle;
       margin-left: 8px;
+    }
+    @media (min-width: 768px) {
+      min-width: 142px;
     }
   }
 `;
