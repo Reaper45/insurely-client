@@ -267,8 +267,8 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
            type: ActionTypes.phoneNumberState,
            payload: PhoneNumberState.failed,
          });
-      })
-      .finally(() => {});
+      });
+      // .finally(() => {});
   };
 
   const initialFormValues = mockInitialValues();
