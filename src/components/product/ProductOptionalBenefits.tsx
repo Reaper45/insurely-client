@@ -15,7 +15,7 @@ const OptionalBenefit = styled("div")`
   .checkbox-label {
     font-size: 15px;
   }
-  > input {
+  > label > input {
     padding: 6px !important;
   }
   .description {
@@ -33,6 +33,9 @@ const OptionalBenefit = styled("div")`
       top: 8px;
       right: 16px;
       font-size: 14px;
+      @media (max-width: 768px) {
+        top: 12px;
+      }
     }
   }
 `;
@@ -41,6 +44,9 @@ const BenefitInput = styled(Input)`
   padding: 8px 16px !important;
   font-size: 14px !important;
   border-radius: 5px !important;
+  @media (max-width: 768px) {
+    padding: 12px 16px !important;
+  }
 `;
 
 interface IProductOptionalBenefitsProps {

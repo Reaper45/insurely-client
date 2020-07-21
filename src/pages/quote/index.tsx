@@ -1,5 +1,6 @@
 import React, { useReducer } from "react";
 import { RouteComponentProps } from "react-router-dom";
+import numeral from "numeral";
 
 import styled from "emotion";
 import { QuoteType } from "types";
@@ -12,18 +13,15 @@ import ProductOptionalBenefits from "components/product/ProductOptionalBenefits"
 import Accordion from "components/ui/Accordion";
 import Checkout from "./Checkout";
 
-import { ReactComponent as CheveronUpIcon } from "assets/icons/icon-cheveron-up.svg";
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
-  >.title {
+  > .title {
     color: ${(props) => props.theme.colors.accent};
     font-weight: 700;
     margin-bottom: 2rem;
     display: block;
-  }
-  @media (min-width: 768px) {
   }
 `;
 
@@ -43,13 +41,12 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   position: fixed;
   z-index: 10;
   left: 0;
-  top: ${(props) => (props.showDetails ? "18%" : "80%")};
+  top: ${(props) => (props.showDetails ? "72px" : "85%")};
   width: 100%;
-  border-top-left-radius: 20px;
-  border-top-right-radius: 20px;
+  border-top: solid 1px
+    ${(props) => (props.showDetails ? props.theme.colors.light : "transparent")};
   background: #fff;
-  border: solid 2px ${(props) => props.theme.colors.light};
-  padding: 1rem;
+  padding: 2rem 1rem;
   height: 100%;
   .toggle-container {
     position: absolute;
@@ -62,11 +59,30 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
       position: relative;
       left: -50%;
       border-radius: 2rem;
-      svg {
-        transform: rotate(
-          ${(props) => (props.showDetails ? "180deg" : "0deg")}
-        );
-      }
+    }
+    .icon-insurer {
+      width: 15px;
+      height: 15px;
+      vertical-align: middle;
+      margin-left: 8px;
+    }
+  }
+  .summary {
+    visibility: ${(props) => (props.showDetails ? "visible" : "hidden")};
+    opacity: ${(props) => (props.showDetails ? "1" : "0")};
+  }
+  .floating-amount {
+    position: absolute;
+    left: 50%;
+    bottom: 22%;
+    .amount {
+      position: relative;
+      left: -50%;
+      background: ${(props) => props.theme.colors.green};
+      padding: 0.75rem 1.5rem;
+      border-radius: 2rem;
+      color: ${(props) => props.theme.colors.white};
+      font-weight: bold;
     }
   }
   @media (min-width: 768px) {
@@ -77,22 +93,28 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
     border-top-left-radius: 0;
     border-top-right-radius: 0;
     padding: 0 1rem;
+    .summary {
+      visibility: visible;
+      opacity: 1;
+    }
     .toggle-container {
+      display: none;
+    }
+    .floating-amount {
       display: none;
     }
   }
 `;
-
 
 interface IQuotesProps {
   quotes: QuoteType[];
 }
 
 enum QuoteStates {
-  initial = 'initial',
-  paid = 'paid',
-  paying = 'paying',
-  emailed = 'emailed'
+  initial = "initial",
+  paid = "paid",
+  paying = "paying",
+  emailed = "emailed",
 }
 
 interface IState {
@@ -102,7 +124,7 @@ interface IState {
 }
 
 const initialState: IState = {
-  productId: "1",
+  productId: null,
   showDetails: false,
   quote: QuoteStates.initial,
 };
@@ -110,7 +132,7 @@ const initialState: IState = {
 enum ActionTypes {
   productId = "PRODUCT_ID",
   showDetails = "SHOW_DETAILS",
-  quote = "QUOTE_STATE"
+  quote = "QUOTE_STATE",
 }
 
 interface IAction {
@@ -190,7 +212,7 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
                   <ProductSummary showDetails={showDetails}>
                     <div className="toggle-container">
                       <button
-                        className="btn btn-toggle btn-primary icon-right"
+                        className="btn btn-toggle btn-primary"
                         onClick={() => {
                           dispatch({
                             type: ActionTypes.showDetails,
@@ -198,27 +220,37 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
                           });
                         }}
                       >
-                        {showDetails ? "Hide" : "Click to see details"}
-
-                        <CheveronUpIcon />
+                        {showDetails ? "Hide details" : "Click to see details"}
+                        <img
+                          className="icon-insurer"
+                          src={activeQuote.insurer?.logo}
+                          alt={activeQuote.insurer?.name}
+                        />
                       </button>
                     </div>
-                    <Accordion
-                      items={[
-                        {
-                          key: "cover-summary",
-                          title: "Cover Summary",
-                          render: () => <ProductBenefits benefits={[]} />,
-                        },
-                        {
-                          key: "select-optional-benefits",
-                          title: "Select optional benefits",
-                          render: () => (
-                            <ProductOptionalBenefits benefits={[]} />
-                          ),
-                        },
-                      ]}
-                    />
+                    <div className="summary">
+                      <Accordion
+                        items={[
+                          {
+                            key: "cover-summary",
+                            title: "Cover Summary",
+                            render: () => <ProductBenefits benefits={[]} />,
+                          },
+                          {
+                            key: "select-optional-benefits",
+                            title: "Select optional benefits",
+                            render: () => (
+                              <ProductOptionalBenefits benefits={[]} />
+                            ),
+                          },
+                        ]}
+                      />
+                    </div>
+                    <div className="floating-amount">
+                      <div className="amount">
+                        Ksh. {numeral("25444").format("0,0")}
+                      </div>
+                    </div>
                   </ProductSummary>
                 )}
               </ProductsWrapper>
@@ -228,22 +260,20 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
             <Container className="flex justify-space-between">
               <button
                 // onClick={() => prev()}
-                className="btn btn-primary link icon-left"
+                className="btn btn-primary link icon-left sm-hidden"
                 type="button"
               >
                 <CheveronLeftIcon />
                 Back
               </button>
-              <div className="flex">
+              <div className="flex justify-space-between sm-flex-1">
                 <button
-                  // onClick={() => prev()}
-                  className="btn btn-secondary link icon-left mr-2"
+                  className="btn btn-light link icon-left mr-2"
                   type="button"
                 >
                   Email me the quotation
                 </button>
                 <button
-                  // disabled={}
                   onClick={() =>
                     dispatch({
                       type: ActionTypes.quote,

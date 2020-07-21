@@ -4,12 +4,6 @@ import styled from "emotion";
 
 import { ReactComponent as CheveronDown } from "assets/icons/icon-cheveron-down.svg";
 
-type AccordionType = {
-  key: string;
-  title: string;
-  render: () => React.ReactElement;
-};
-
 const AccordionItem = styled("div")<{ active: boolean }>`
   border-bottom: solid 1px ${(props) => props.theme.colors.gray};
   margin-bottom: 1rem;
@@ -40,15 +34,21 @@ const AccordionItem = styled("div")<{ active: boolean }>`
   }
 `;
 
+type AccordionType = {
+  key: string;
+  title: string;
+  render: () => React.ReactElement;
+};
+
 const Accordion: React.FC<{
   items: AccordionType[];
 }> = ({ items }) => {
   const [active, setActive] = useState<null | string>(null);
   useEffect(() => {
-    setActive(items[1].key);
+    setActive(items[0].key);
   }, [items]);
   return (
-    <div>
+    <>
       {items.map((item) => (
         <AccordionItem active={active === item.key} key={item.key}>
           <div
@@ -69,7 +69,7 @@ const Accordion: React.FC<{
           <div className="content">{item.render()}</div>
         </AccordionItem>
       ))}
-    </div>
+    </>
   );
 };
 

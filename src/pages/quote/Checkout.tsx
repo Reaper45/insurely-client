@@ -20,9 +20,18 @@ const CheckoutModalContent = styled("div")`
 const CheckoutBtnGroup = styled("div")`
   > button {
     font-weight: 700;
-    padding: 10px 16px;
-    &.btn-primary {
-      color: rgba(255, 255, 255, 0.66);
+    line-height: 2;
+    text-align: center;
+  }
+  @media (max-width: 481px) {
+    flex-wrap: wrap;
+    button {
+      flex-grow: 1;
+      :first-of-type {
+        margin-bottom: 0.5rem;
+        margin-right: 0;
+        width: 100%;
+      }
     }
   }
 `;
@@ -37,10 +46,15 @@ const PhoneNumberLabel = styled("div")`
       height: 50px;
       margin-right: 1rem;
     }
-
     svg {
       fill: ${(props) => props.theme.colors.green};
       height: 20px;
+    }
+    @media (max-width: 481px) {
+      max-height: 40px;
+      img {
+        height: 40px;
+      }
     }
   }
 `;
@@ -51,7 +65,7 @@ const CheckoutManualProcess = styled("div")<{ collapse: boolean }>`
   margin-bottom: 2rem;
   border-radius: ${(props) => (props.collapse ? "2rem" : "1rem")};
   > .header {
-    padding: 10px 0;
+    padding: 8px 0;
     font-size: 14px;
     cursor: pointer;
     .title {
@@ -155,14 +169,17 @@ const Checkout: React.FC<{
           />
           <PhoneNumberLabel>
             <div className="flex justify-center align-center">
-              <img src={require("../../assets/img/saf.png")} alt="Safaricom ogo" />
+              <img
+                src={require("../../assets/img/saf.png")}
+                alt="Safaricom ogo"
+              />
               <CheckCircleIcon />
             </div>
           </PhoneNumberLabel>
         </FieldWrapper>
         <CheckoutManualProcess collapse={!manualCheckout}>
           <div
-            className="header flex  justify-space-between"
+            className="header flex justify-space-between"
             onClick={() =>
               dispatch({
                 type: ActionTypes.manualCheckout,
@@ -200,7 +217,7 @@ const Checkout: React.FC<{
         {!manualCheckout && (
           <CheckoutBtnGroup className="flex justify-space-between align-stretch">
             <button
-              className="btn btn-light btn-verify flex  align-center mr-2"
+              className="btn btn-light btn-verify mr-2"
               onClick={close}
             >
               Cancel
