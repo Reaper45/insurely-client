@@ -2,7 +2,7 @@ import React from "react";
 import { Switch, Route } from "react-router-dom";
 
 import QuotationForm from "pages/form";
-import Quotes from "pages/Quotes";
+import Quotes from "pages/quote";
 
 function App() {
   return (

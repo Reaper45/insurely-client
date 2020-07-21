@@ -155,7 +155,7 @@ const Checkout: React.FC<{
           />
           <PhoneNumberLabel>
             <div className="flex justify-center align-center">
-              <img src={require("../assets/img/saf.png")} alt="Safaricom ogo" />
+              <img src={require("../../assets/img/saf.png")} alt="Safaricom ogo" />
               <CheckCircleIcon />
             </div>
           </PhoneNumberLabel>

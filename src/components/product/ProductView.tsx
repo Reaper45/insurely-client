@@ -10,7 +10,7 @@ import { ReactComponent as ExclamationIcon } from "assets/icons/icon-exclamation
 
 interface IProductViewProps {
   handleClick: () => void;
-  logo: string;
+  logo?: string;
   amount: string;
   hasIPF?: boolean;
   active?: boolean;

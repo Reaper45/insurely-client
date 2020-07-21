@@ -1,4 +1,5 @@
 import React, { useReducer } from "react";
+import { RouteComponentProps } from "react-router-dom";
 
 import styled from "emotion";
 import { QuoteType } from "types";
@@ -9,11 +10,10 @@ import ProductView from "components/product/ProductView";
 import ProductBenefits from "components/product/ProductBenefits";
 import ProductOptionalBenefits from "components/product/ProductOptionalBenefits";
 import Accordion from "components/ui/Accordion";
+import Checkout from "./Checkout";
 
 import { ReactComponent as CheveronUpIcon } from "assets/icons/icon-cheveron-up.svg";
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
-import { Switch, Route, RouteComponentProps } from "react-router-dom";
-import Checkout from "./Checkout";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
@@ -83,28 +83,34 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   }
 `;
 
-// const ProductBenefits = styled("div")``;
 
 interface IQuotesProps {
   quotes: QuoteType[];
 }
 
+enum QuoteStates {
+  initial = 'initial',
+  paid = 'paid',
+  paying = 'paying',
+  emailed = 'emailed'
+}
+
 interface IState {
   productId: string | null;
   showDetails: boolean;
-  showCheckoutModal: boolean;
+  quote: QuoteStates;
 }
 
 const initialState: IState = {
   productId: "1",
   showDetails: false,
-  showCheckoutModal: false,
+  quote: QuoteStates.initial,
 };
 
 enum ActionTypes {
   productId = "PRODUCT_ID",
   showDetails = "SHOW_DETAILS",
-  checkoutModal = "CHECKOUT_MODAL"
+  quote = "QUOTE_STATE"
 }
 
 interface IAction {
@@ -118,8 +124,8 @@ const reducer = (state: IState, action: IAction): IState => {
       return { ...state, productId: action.payload };
     case ActionTypes.showDetails:
       return { ...state, showDetails: action.payload };
-    case ActionTypes.checkoutModal:
-      return { ...state, showCheckoutModal: action.payload };
+    case ActionTypes.quote:
+      return { ...state, quote: action.payload };
     default:
       return state;
   }
@@ -129,34 +135,34 @@ const quotes: QuoteType[] = [
   {
     product_id: "1",
     insurer: {
-      logo: require("../assets/img/icea_lion.png"),
+      logo: require("../../assets/img/icea_lion.png"),
     },
     has_ipf: true,
   },
   {
     product_id: "2",
     insurer: {
-      logo: require("../assets/img/icea_lion.png"),
+      logo: require("../../assets/img/icea_lion.png"),
     },
     has_ipf: false,
   },
   {
     product_id: "3",
     insurer: {
-      logo: require("../assets/img/icea_lion.png"),
+      logo: require("../../assets/img/icea_lion.png"),
     },
     has_ipf: false,
   },
 ];
-const Quotes: React.FC<IQuotesProps & RouteComponentProps> = ({ match }) => {
+const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { productId, showDetails, showCheckoutModal } = state;
-  const activeQuote = quotes.find((quote) => quote.product_id === productId);
+  const { productId, showDetails, quote } = state;
+  const activeQuote = quotes.find((q) => q.product_id === productId);
 
-  const handleProductClick = (productId: string) => {
+  const handleProductClick = (id: string) => {
     dispatch({
       type: ActionTypes.productId,
-      payload: productId,
+      payload: id,
     });
   };
 
@@ -169,14 +175,14 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = ({ match }) => {
               <div className="title">Choose your preferred insurer</div>
               <ProductsWrapper>
                 <ProductList>
-                  {quotes.map((quote) => (
+                  {quotes.map((q) => (
                     <ProductView
-                      key={quote.product_id}
-                      handleClick={() => handleProductClick(quote.product_id)}
-                      logo={require("../assets/img/icea_lion.png")}
+                      key={q.product_id}
+                      handleClick={() => handleProductClick(q.product_id)}
+                      logo={q.insurer?.logo}
                       amount="28555"
-                      hasIPF={quote.has_ipf}
-                      active={productId === quote.product_id}
+                      hasIPF={q.has_ipf}
+                      active={productId === q.product_id}
                     />
                   ))}
                 </ProductList>
@@ -240,8 +246,8 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = ({ match }) => {
                   // disabled={}
                   onClick={() =>
                     dispatch({
-                      type: ActionTypes.checkoutModal,
-                      payload: !showCheckoutModal,
+                      type: ActionTypes.quote,
+                      payload: QuoteStates.paying,
                     })
                   }
                   className="btn btn-primary"
@@ -253,11 +259,11 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = ({ match }) => {
             </Container>
           </PageFooter>
           <Checkout
-            show={showCheckoutModal}
+            show={quote === QuoteStates.paying}
             close={() => {
               dispatch({
-                type: ActionTypes.checkoutModal,
-                payload: false,
+                type: ActionTypes.quote,
+                payload: quote === QuoteStates.initial,
               });
             }}
             phoneNumber="0719747908"

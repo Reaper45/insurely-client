@@ -1,11 +1,11 @@
-import React from 'react'
+import React from 'react';
 
 const Complete = () => {
   return (
     <div>
       
     </div>
-  )
-}
+  );
+};
 
-export default Complete
+export default Complete;
