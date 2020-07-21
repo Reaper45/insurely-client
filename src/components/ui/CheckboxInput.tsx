@@ -20,7 +20,7 @@ const CheckboxFieldWrapper = styled("label")<{
     :checked {
       background: #fff url(${require("../../assets/icons/icon-check.png")})
         no-repeat center;
-      background-size: 90%;
+      background-size: 65%;
       & + span {
         color: ${(props) => props.theme.colors.dark};
       }

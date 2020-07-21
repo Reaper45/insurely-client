@@ -12,6 +12,8 @@ import Accordion from "components/ui/Accordion";
 
 import { ReactComponent as CheveronUpIcon } from "assets/icons/icon-cheveron-up.svg";
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
+import { Switch, Route, RouteComponentProps } from "react-router-dom";
+import Checkout from "./Checkout";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
@@ -39,7 +41,7 @@ const ProductList = styled("div")`
 const ProductSummary = styled("div")<{ showDetails: boolean }>`
   flex-grow: 1;
   position: fixed;
-  z-index: 15;
+  z-index: 10;
   left: 0;
   top: ${(props) => (props.showDetails ? "18%" : "80%")};
   width: 100%;
@@ -90,16 +92,19 @@ interface IQuotesProps {
 interface IState {
   productId: string | null;
   showDetails: boolean;
+  showCheckoutModal: boolean;
 }
 
 const initialState: IState = {
   productId: "1",
   showDetails: false,
+  showCheckoutModal: false,
 };
 
 enum ActionTypes {
   productId = "PRODUCT_ID",
   showDetails = "SHOW_DETAILS",
+  checkoutModal = "CHECKOUT_MODAL"
 }
 
 interface IAction {
@@ -113,6 +118,8 @@ const reducer = (state: IState, action: IAction): IState => {
       return { ...state, productId: action.payload };
     case ActionTypes.showDetails:
       return { ...state, showDetails: action.payload };
+    case ActionTypes.checkoutModal:
+      return { ...state, showCheckoutModal: action.payload };
     default:
       return state;
   }
@@ -141,9 +148,9 @@ const quotes: QuoteType[] = [
     has_ipf: false,
   },
 ];
-const Quotes: React.FC<IQuotesProps> = () => {
+const Quotes: React.FC<IQuotesProps & RouteComponentProps> = ({ match }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { productId, showDetails } = state;
+  const { productId, showDetails, showCheckoutModal } = state;
   const activeQuote = quotes.find((quote) => quote.product_id === productId);
 
   const handleProductClick = (productId: string) => {
@@ -152,6 +159,7 @@ const Quotes: React.FC<IQuotesProps> = () => {
       payload: productId,
     });
   };
+
   return (
     <PageLayout title="Quotations">
       {() => (
@@ -230,7 +238,12 @@ const Quotes: React.FC<IQuotesProps> = () => {
                 </button>
                 <button
                   // disabled={}
-                  // onClick={() => next(stepNumber)}
+                  onClick={() =>
+                    dispatch({
+                      type: ActionTypes.checkoutModal,
+                      payload: !showCheckoutModal,
+                    })
+                  }
                   className="btn btn-primary"
                   type="submit"
                 >
@@ -239,6 +252,17 @@ const Quotes: React.FC<IQuotesProps> = () => {
               </div>
             </Container>
           </PageFooter>
+          <Checkout
+            show={showCheckoutModal}
+            close={() => {
+              dispatch({
+                type: ActionTypes.checkoutModal,
+                payload: false,
+              });
+            }}
+            phoneNumber="0719747908"
+            amount="23577"
+          />
         </>
       )}
     </PageLayout>

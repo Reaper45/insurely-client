@@ -3,11 +3,10 @@ import { Formik, Form, FormikHelpers } from "formik";
 import { RouteChildrenProps } from "react-router-dom";
 
 import styled from "emotion";
-import { Container, PageFooter, Input } from "components/ui";
+import { Container, PageFooter, Input, FieldWrapper } from "components/ui";
 import PageLayout from "components/PageLayout";
 import Modal from "components/ui/Modal";
 import FormSection from "./FormSection";
-import { FieldWrapper } from "./FormFields";
 
 import quotationForm, { IQuotationFormValues } from "./quotation-form";
 

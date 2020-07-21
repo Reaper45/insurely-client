@@ -4,8 +4,7 @@ import styled from "emotion";
 import { BenefitType } from "types";
 
 import CheckboxInput from "components/ui/CheckboxInput";
-import { Input } from "components/ui";
-import { FieldWrapper } from "pages/form/FormFields";
+import { FieldWrapper, Input } from "components/ui";
 
 const ProductOptionalBenefitsWrapper = styled("div")`
   // display: flex;

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { createRef, RefObject, useEffect } from "react";
-import ReactDOM from 'react-dom'
+import ReactDOM from "react-dom";
 
 import styled from "emotion";
 
@@ -10,7 +10,7 @@ export type CloseFn = () => void;
 
 interface IModalProps {
   show: boolean;
-  close: CloseFn;
+  close?: CloseFn;
   title: string;
 }
 
@@ -40,10 +40,11 @@ const ModalWrapper = styled("div")<Partial<IModalProps>>`
   border-radius: 10px;
   width: 100%;
   @media (min-width: 768px) {
-    width: 33%;
+    width: 35%;
     top: -20%;
   }
 `;
+
 const ModalContent = styled("div")`
   border-radius: 5px;
   padding: 1em 1.5em;
@@ -69,35 +70,39 @@ const ModalHeader = styled("div")`
 
 const modalRoot = document.getElementById("modal-root");
 
-const Modal: React.FC<IModalProps> = ({ close, children, show, title }) => {
-  const node: RefObject<HTMLDivElement> = createRef();
-  const containerEl: HTMLDivElement = document.createElement("div");
+class Modal extends React.Component<IModalProps> {
+  node: RefObject<HTMLDivElement> = createRef();
 
-  useEffect(() => {
-    modalRoot?.appendChild(containerEl);
-    // @ts-ignore
-    return () => {
-      // @ts-ignore
-      modalRoot?.removeChild(containerEl);
-    };
-  }, [containerEl, node]);
+  containerEl: HTMLDivElement = document.createElement("div");
 
-  return ReactDOM.createPortal(
-    <ModalBackdrop show={show}>
-      <ModalWrapper ref={node} show={show}>
-        <ModalContent>
-          <ModalHeader>
-            <div>{title}</div>
-            <button onClick={close}>
-              <CloseIcon />
-            </button>
-          </ModalHeader>
-          {children}
-        </ModalContent>
-      </ModalWrapper>
-    </ModalBackdrop>,
-    containerEl
-  );
-};
+  componentDidMount() {
+    modalRoot?.appendChild(this.containerEl);
+  }
+
+  componentWillUnmount() {
+    modalRoot?.removeChild(this.containerEl);
+  }
+
+  public render() {
+    const { close, children, show, title } = this.props;
+
+    return ReactDOM.createPortal(
+      <ModalBackdrop show={show}>
+        <ModalWrapper ref={this.node} show={show}>
+          <ModalContent>
+            <ModalHeader>
+              <div>{title}</div>
+              <button onClick={close}>
+                <CloseIcon />
+              </button>
+            </ModalHeader>
+            {children}
+          </ModalContent>
+        </ModalWrapper>
+      </ModalBackdrop>,
+      this.containerEl
+    );
+  }
+}
 
 export default Modal;

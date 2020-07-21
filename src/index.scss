@@ -74,6 +74,7 @@ button {
   color: $white;
   svg {
     fill: $white;
+    opacity: .33;
   }
   &.link {
     background: $white;
@@ -91,12 +92,25 @@ button {
   color: $white;
 }
 
+.btn-light {
+  background: $light;
+  color: $dark;
+}
+
 .flex{
   display: flex;
 }
 
 .justify-space-between {
   justify-content: space-between;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.align-stretch {
+   align-items: stretch;
 }
 
 .w-full{

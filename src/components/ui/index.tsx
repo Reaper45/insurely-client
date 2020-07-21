@@ -37,6 +37,7 @@ const baseInputStyles = css(`
 
 const Input = styled("input")`
   ${baseInputStyles}
+  color: ${(props) => props.theme.colors.dark};
   border: solid 1px ${(props: any) => props.theme.colors.light};
   ::placeholder {
     color: ${(props) => props.theme.colors.gray};
@@ -52,4 +53,40 @@ const Input = styled("input")`
 
 `;
 
-export { baseInputStyles, Container, Main, Input, PageFooter };
+const FieldWrapper = styled("div")`
+  margin-bottom: 1.375rem;
+  position: relative;
+  @media (min-width: 768px) {
+    margin-bottom: 2rem;
+  }
+  span.label {
+    font-weight: bold;
+    font-size: 14px;
+    color: ${(props) => props.theme.colors.secondary};
+    position: absolute;
+    right: 1rem;
+    @media (min-width: 768px) {
+      font-size: 16px;
+      top: 1.25rem;
+      right: 1.375rem;
+    }
+  }
+`;
+
+const FieldError = styled("div")`
+  color: ${(props) => props.theme.colors.red};
+  font-style: italic;
+  font-size: x-small;
+  margin-left: 5px;
+  margin-top: 4px;
+`;
+
+export {
+  baseInputStyles,
+  Container,
+  Main,
+  Input,
+  PageFooter,
+  FieldWrapper,
+  FieldError,
+};
