@@ -1,24 +1,23 @@
-$primary: #114AAF;
-$dark: #2A4365;
-$light: #E2E8F0;
+$primary: #114aaf;
+$dark: #2a4365;
+$light: #e2e8f0;
 $secondary: #718096;
-$accent: #1A202C;
-$gray: #A0AEC0; // placeholders
-$white: #FFFFFF;    // Status colors
-$red: #E53E3E; // Error
-$green: #38A169; // Success
-$orange: #D69E2E; // Warn
+$accent: #1a202c;
+$gray: #a0aec0; // placeholders
+$white: #ffffff; // Status colors
+$red: #e53e3e; // Error
+$green: #38a169; // Success
+$orange: #d69e2e; // Warn
 
 body {
   margin: 0;
-  font-family: 'Helvetica Neue',
-    sans-serif;
+  font-family: "Helvetica Neue", sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+  font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
     monospace;
 }
 
@@ -51,21 +50,23 @@ button {
   font-size: 14px;
   &:disabled {
     cursor: not-allowed;
-    opacity: .33;
+    opacity: 0.33;
   }
   svg {
     // fill: ${(props) => props.theme.colors.secondary};
     vertical-align: middle;
-    margin-bottom: 2px;
+    // margin-bottom: 2px;
     height: 20px;
   }
-  &.icon-left{
+  &.icon-left {
     svg {
       margin-right: 8px;
     }
   }
-  &.icon-right{
-     svg {margin-left: 8px;}
+  &.icon-right {
+    svg {
+      margin-left: 8px;
+    }
   }
 }
 
@@ -74,7 +75,7 @@ button {
   color: $white;
   svg {
     fill: $white;
-    opacity: .33;
+    opacity: 0.33;
   }
   &.link {
     background: $white;
@@ -97,7 +98,7 @@ button {
   color: $dark;
 }
 
-.flex{
+.flex {
   display: flex;
 }
 
@@ -110,10 +111,10 @@ button {
 }
 
 .align-stretch {
-   align-items: stretch;
+  align-items: stretch;
 }
 
-.w-full{
+.w-full {
   width: 100%;
 }
 

@@ -71,8 +71,22 @@ const CheckoutManualProcess = styled("div")<{ collapse: boolean }>`
     li {
       padding: 8px;
       font-size: 14px;
-      color: color: ${(props) => props.theme.colors.dark};
+      color: ${(props) => props.theme.colors.dark};
     }
+  }
+`;
+
+const TransactionCodeField = styled(FieldWrapper)`
+  margin-left: -1rem;
+  margin-right: -1rem;
+  margin-top: 8px;
+  margin-bottom: 0 !important;
+  > input {
+    border-color: ${(props) => props.theme.colors.light};
+    padding: 8px !important;
+    border-radius: 5px;
+    margin-right: 1rem;
+    font-size: 14px;
   }
 `;
 
@@ -156,34 +170,51 @@ const Checkout: React.FC<{
               })
             }
           >
-            <div className="title">or complete manually</div>
+            <div className="title">Or complete manually</div>
             <CheveronDownIcon />
           </div>
           <div className="content">
             <ol type="1">
-              <li></li>
-              <li></li>
-              <li></li>
-              <li></li>
+              <li>
+                In your M-PESA, select <b>Pay Bill</b> option
+              </li>
+              <li>
+                Enter Business number <b>000000</b>
+              </li>
+              <li>
+                Enter Account number <b>{phoneNumber}</b>
+              </li>
+              <li>
+                Enter the Amount <b>{numeral(amount).format("0,0")}</b>
+              </li>
+              <li>Enter your M-PESA PIN and Send</li>
+              <li>You will receive a confirmation SMS from M-PESA</li>
+              <li>Enter the transaction code & click to confirm payment.</li>
             </ol>
+            <TransactionCodeField className="flex justify-center align-stretch">
+              <Input name="code" placeholder="M-PESA transaction code" />
+              <button className="btn btn-primary">Confirm</button>
+            </TransactionCodeField>
           </div>
         </CheckoutManualProcess>
-        <CheckoutBtnGroup className="flex justify-space-between align-stretch">
-          <button
-            className="btn btn-light btn-verify flex  align-center mr-2"
-            onClick={close}
-          >
-            Cancel
-          </button>
-          <button
-            // onClick={() => setOTP({ phoneNumber: values.phoneNumber })}
-            className="btn btn-primary w-full icon-left"
-            type="button"
-          >
-            <CurrencyIcon />
-            Complete payment: Ksh. {numeral(amount).format("0,0")}
-          </button>
-        </CheckoutBtnGroup>
+        {!manualCheckout && (
+          <CheckoutBtnGroup className="flex justify-space-between align-stretch">
+            <button
+              className="btn btn-light btn-verify flex  align-center mr-2"
+              onClick={close}
+            >
+              Cancel
+            </button>
+            <button
+              // onClick={() => setOTP({ phoneNumber: values.phoneNumber })}
+              className="btn btn-primary w-full icon-left"
+              type="button"
+            >
+              <CurrencyIcon />
+              Complete payment: Ksh. {numeral(amount).format("0,0")}
+            </button>
+          </CheckoutBtnGroup>
+        )}
       </CheckoutModalContent>
     </Modal>
   );

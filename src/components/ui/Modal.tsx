@@ -41,7 +41,7 @@ const ModalWrapper = styled("div")<Partial<IModalProps>>`
   width: 100%;
   @media (min-width: 768px) {
     width: 35%;
-    top: -20%;
+    // top: 200px;
   }
 `;
 
