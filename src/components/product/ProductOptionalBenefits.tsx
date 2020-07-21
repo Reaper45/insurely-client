@@ -6,10 +6,6 @@ import { BenefitType } from "types";
 import CheckboxInput from "components/ui/CheckboxInput";
 import { FieldWrapper, Input } from "components/ui";
 
-const ProductOptionalBenefitsWrapper = styled("div")`
-  // display: flex;
-`;
-
 const OptionalBenefit = styled("div")`
   margin-bottom: 0.25rem;
   .checkbox-label {
@@ -57,7 +53,7 @@ const ProductOptionalBenefits: React.FC<IProductOptionalBenefitsProps> = ({
   benefits,
 }) => {
   return (
-    <ProductOptionalBenefitsWrapper>
+    <div>
       <OptionalBenefit>
         <CheckboxInput label="Road Rescue" />
         {/* <div className="description">Road rescue services from AA</div> */}
@@ -74,7 +70,7 @@ const ProductOptionalBenefits: React.FC<IProductOptionalBenefitsProps> = ({
       <OptionalBenefit>
         <CheckboxInput label="Excess protector" />
       </OptionalBenefit>
-    </ProductOptionalBenefitsWrapper>
+    </div>
   );
 };
 

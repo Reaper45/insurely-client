@@ -5,12 +5,17 @@ import { Main } from "./ui";
 
 const PageLayout: React.FC<{
   children: <T>(props: T) => React.ReactElement;
-  title: string;
+  title?: string;
   onLogoClick?: (props: any) => void;
-}> = ({ children, onLogoClick, title, ...props }) => {
+  cancelableHeader?: boolean;
+}> = ({ children, onLogoClick, title, cancelableHeader, ...props }) => {
   return (
     <>
-      <Header onLogoClick={onLogoClick} title={title} />
+      <Header
+        onLogoClick={onLogoClick}
+        title={title}
+        cancelable={cancelableHeader}
+      />
       <Main>{children(props)}</Main>
     </>
   );

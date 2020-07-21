@@ -63,7 +63,11 @@ const Brand = styled("img")`
   }
 `;
 
-const Header: React.FC<{ onLogoClick?: (props: any) => void; title?: string }> = ({ onLogoClick, title }) => {
+const Header: React.FC<{
+  onLogoClick?: (props: any) => void;
+  title?: string;
+  cancelable?: boolean;
+}> = ({ onLogoClick, title, cancelable = true }) => {
   return (
     <HeaderWrapper>
       <Container>
@@ -76,12 +80,14 @@ const Header: React.FC<{ onLogoClick?: (props: any) => void; title?: string }> =
               <div>{title}</div>
             </div>
           )}
-          <div>
-            <button className="btn-close">
-              Cancel
-              <CloseIcon />
-            </button>
-          </div>
+          {cancelable && (
+            <div>
+              <button className="btn-close">
+                Cancel
+                <CloseIcon />
+              </button>
+            </div>
+          )}
         </NavWrapper>
       </Container>
     </HeaderWrapper>

@@ -1,10 +1,16 @@
 import React from 'react';
 
+import PageLayout from "components/PageLayout";
+
 const Complete = () => {
   return (
-    <div>
-      
-    </div>
+    <PageLayout cancelableHeader={false}>
+      {() => (
+        <div>
+          Complete
+        </div>
+      )}
+    </PageLayout>
   );
 };
 
