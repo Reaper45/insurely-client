@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createRef, RefObject, useEffect } from "react";
+import { createRef, RefObject } from "react";
 import ReactDOM from "react-dom";
 
 import styled from "emotion";

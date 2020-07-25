@@ -8,7 +8,7 @@ import PageLayout from "components/PageLayout";
 import Modal from "components/ui/Modal";
 import FormSection from "./FormSection";
 
-import quotationForm, { IQuotationFormValues } from "./quotation-form";
+import quotationForm, { IQuotationFormValues, initialValues } from "./quotation-form";
 
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
 import { ReactComponent as CheveronRightIcon } from "assets/icons/icon-cheveron-right.svg";
@@ -170,26 +170,26 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       });
   };
 
-  const mockInitialValues = (): Partial<IQuotationFormValues> => {
-    return quotationForm.reduce((prevValue, nextValue) => {
-      // @ts-ignore
-      const fieldsValues = nextValue.form.fields.reduce((fields, field) => {
-        let init = field!.name ? { [field.name]: "" } : {};
-        if (field.children) {
-          const childrenValues = field.children.reduce((i, child) => {
-            return { ...i, ...(child!.name ? { [child.name]: "" } : {}) };
-          }, {});
+  // const mockInitialValues = (): Partial<IQuotationFormValues> => {
+  //   return quotationForm.reduce((prevValue, nextValue) => {
+  //     // @ts-ignore
+  //     const fieldsValues = nextValue.form.fields.reduce((fields, field) => {
+  //       let init = field!.name ? { [field.name]: "" } : {};
+  //       if (field.children) {
+  //         const childrenValues = field.children.reduce((i, child) => {
+  //           return { ...i, ...(child!.name ? { [child.name]: "" } : {}) };
+  //         }, {});
 
-          return { ...fields, ...childrenValues };
-        }
-        return {
-          ...init,
-          ...fields,
-        };
-      }, {});
-      return { ...prevValue, ...fieldsValues };
-    }, {});
-  };
+  //         return { ...fields, ...childrenValues };
+  //       }
+  //       return {
+  //         ...init,
+  //         ...fields,
+  //       };
+  //     }, {});
+  //     return { ...prevValue, ...fieldsValues };
+  //   }, {});
+  // };
 
   const setOTP = async ({ phoneNumber }: { phoneNumber?: string }) => {
     dispatch({
@@ -242,8 +242,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       body: JSON.stringify({ code: otp, phoneNumber }),
     })
       .then(async (res) => {
-        const data = await res.json();
-        console.log(data);
+        const { data, message, success } = await res.json();
         if (data.verified) {
           dispatch({
             type: ActionTypes.phoneNumberState,
@@ -271,13 +270,11 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       // .finally(() => {});
   };
 
-  const initialFormValues = mockInitialValues();
-
   return (
     <PageLayout title={`Step ${step.section} of 4`} onLogoClick={reset}>
       {() => (
         <Formik
-          initialValues={initialFormValues}
+          initialValues={initialValues}
           onSubmit={handleFormSubmit}
           validationSchema={step.validationSchema}
         >
@@ -368,7 +365,9 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                   </button>
                   <div>
                     <button
-                      onClick={()=> setOTP({ phoneNumber: values.phoneNumber })}
+                      onClick={() =>
+                        setOTP({ phoneNumber: values.phoneNumber })
+                      }
                       className="btn btn-primary link icon-right"
                       type="button"
                     >

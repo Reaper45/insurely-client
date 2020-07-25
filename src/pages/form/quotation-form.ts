@@ -77,10 +77,10 @@ const quotationFormSections: IFormSection[] = [
       ],
     },
     validationSchema: Yup.object({
-      firstName: Yup.string().required("Required"),
-      lastName: Yup.string().required("Required"),
+      firstName: Yup.string().required("First name is required"),
+      lastName: Yup.string().required("Last name is required"),
+      email: Yup.string().email("Invalid email"),
     }),
-    // requiresVerification: true,
   },
   {
     stepNumber: 2,
@@ -150,6 +150,10 @@ const quotationFormSections: IFormSection[] = [
         },
       ],
     },
+    validationSchema: Yup.object({
+      yearOfManufacture: Yup.string().required("Year of manufacture is required"),
+      sumInsured: Yup.number().min(500000),
+    }),
   },
   {
     stepNumber: 4,
@@ -226,5 +230,17 @@ export interface IQuotationFormValues {
   typeOfCover: string;
   duration: string;
 }
+
+export const initialValues: Partial<IQuotationFormValues> = {
+  firstName: "",
+  lastName: "",
+  email: "",
+  phoneNumber: "",
+  vehicleUse: "",
+  yearOfManufacture: "",
+  sumInsured: "",
+  typeOfCover: "",
+  duration: "12",
+};
 
 export default quotationFormSections;
