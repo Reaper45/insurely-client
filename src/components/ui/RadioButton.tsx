@@ -1,5 +1,5 @@
 import React from "react";
-import { Field } from "formik";
+import { Field, useField } from "formik";
 
 import styled from "emotion";
 
@@ -16,7 +16,7 @@ const RadioWrapper = styled("label")<{ checked?: boolean }>`
   font-size: 14px;
   margin-bottom: 1.5rem;
   position: relative;
-  color: ${(props) => props.theme.colors.gray};
+  color: ${(props) => props.checked ? props.theme.colors.dark : props.theme.colors.gray};
   :focused {
     transition-duration: 0;
     border-color: ${(props) => props.theme.colors.primary};
@@ -65,10 +65,17 @@ const Radio: React.FC<{ label: string; value: string; name?: string }> = ({
   value,
   name,
 }) => {
+  const [field] = useField(name || "");
+
   return (
-    <RadioWrapper htmlFor={value}>
+    <RadioWrapper htmlFor={label.replace(/\s/g, "")} checked={field.value === value}>
       {label}
-      <Field id={value} type="radio" name={name} value={value} />
+      <Field
+        id={label.replace(/\s/g, "")}
+        type="radio"
+        name={name}
+        value={value}
+      />
       <span className="checkmark"></span>
     </RadioWrapper>
   );

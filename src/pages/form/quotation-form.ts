@@ -1,4 +1,3 @@
-import { OptionType, IFormSection } from "types";
 import * as Yup from "yup";
 
 //
@@ -95,30 +94,8 @@ const quotationFormSections: IFormSection[] = [
       fields: [
         {
           name: "vehicleUse",
-          type: "radio",
+          type: "classes",
           required: true,
-          options: [
-            {
-              key: "Private",
-              value: "Private",
-              label: "Personal use only (Private)",
-            },
-            {
-              key: "Commercial",
-              value: "Commercial",
-              label: "Commercial vehicle for carrying own goods",
-            },
-            {
-              key: "PSV",
-              value: "PSV",
-              label: "PSV vehicle (Taxi driven by me and my driver)",
-            },
-            {
-              key: "general-cartage",
-              value: "General cartage",
-              label: "General cartage for carrying commercial goods",
-            },
-          ],
         },
       ],
     },
@@ -151,7 +128,9 @@ const quotationFormSections: IFormSection[] = [
       ],
     },
     validationSchema: Yup.object({
-      yearOfManufacture: Yup.string().required("Year of manufacture is required"),
+      yearOfManufacture: Yup.string().required(
+        "Year of manufacture is required"
+      ),
       sumInsured: Yup.number().min(500000),
     }),
   },
@@ -168,26 +147,10 @@ const quotationFormSections: IFormSection[] = [
       fields: [
         {
           name: "typeOfCover",
-          type: "radio",
+          type: "categories",
           placeholder: "Type of cover",
           required: true,
-          options: [
-            {
-              key: "COMP",
-              value: "COMP",
-              label: "Comprehensive",
-            },
-            {
-              key: "TPFT",
-              value: "TPFT",
-              label: "Third party Fire & Theft (TPFT)",
-            },
-            {
-              key: "TPO",
-              value: "TPO",
-              label: "Third party only",
-            },
-          ],
+          classFieldName: "vehicleUse",
         },
       ],
     },
@@ -232,13 +195,13 @@ export interface IQuotationFormValues {
 }
 
 export const initialValues: Partial<IQuotationFormValues> = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phoneNumber: "",
+  firstName: "Joram",
+  lastName: "Mwashighadi",
+  email: "jomwashighadi@gmail.com",
+  phoneNumber: "0719747908",
   vehicleUse: "",
-  yearOfManufacture: "",
-  sumInsured: "",
+  yearOfManufacture: "2015",
+  sumInsured: "800000",
   typeOfCover: "",
   duration: "12",
 };

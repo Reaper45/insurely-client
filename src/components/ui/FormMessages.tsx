@@ -1,7 +1,6 @@
 import React from "react";
 
 import styled from "emotion";
-import { IMessage } from "types";
 
 const FormMessagesWrapper = styled("div")`
   padding: 1.5rem 0;

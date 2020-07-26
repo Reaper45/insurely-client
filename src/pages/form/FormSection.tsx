@@ -1,11 +1,15 @@
 import React from "react";
 import { Field } from "formik";
 
-import { IForm, IFormField } from "types";
 import styled from "emotion";
 
 import FormMessages from "components/ui/FormMessages";
-import { InputField, RadioFormField, SelectFormField } from "./FormFields";
+import {
+  InputField,
+  ClassesFormField,
+  CategoriesFormField,
+  SelectFormField,
+} from "./FormFields";
 
 const GroupInput = styled("div")`
   display: flex;
@@ -50,12 +54,20 @@ const FormSection: React.FC<{
             </GroupInput>
           );
         }
-        if (field.type === "radio") {
+        if (field.type === "classes") {
           return (
-            <RadioFormField
+            <ClassesFormField
               key={field.name}
               name={field.name}
-              options={field.options}
+            />
+          );
+        }
+        if (field.type === "categories") {
+          return (
+            <CategoriesFormField
+              key={field.name}
+              name={field.name}
+              classFieldName={field.classFieldName}
             />
           );
         }

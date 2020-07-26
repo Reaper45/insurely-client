@@ -10,7 +10,6 @@
         "arrow-parens": true,
         "max-line-length": false,
         "no-console": false,
-        "no-floating-promises": true,
         "variable-name": [
             true,
             "check-format",

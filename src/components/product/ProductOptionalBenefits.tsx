@@ -1,7 +1,6 @@
 import React from "react";
 
 import styled from "emotion";
-import { BenefitType } from "types";
 
 import CheckboxInput from "components/ui/CheckboxInput";
 import { FieldWrapper, Input } from "components/ui";

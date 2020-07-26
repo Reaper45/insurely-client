@@ -8,7 +8,10 @@ import PageLayout from "components/PageLayout";
 import Modal from "components/ui/Modal";
 import FormSection from "./FormSection";
 
-import quotationForm, { IQuotationFormValues, initialValues } from "./quotation-form";
+import quotationForm, {
+  IQuotationFormValues,
+  initialValues,
+} from "./quotation-form";
 
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
 import { ReactComponent as CheveronRightIcon } from "assets/icons/icon-cheveron-right.svg";
@@ -80,6 +83,8 @@ enum PhoneNumberState {
   failed = "failed",
   verifying = "verifying",
   pending = "pending",
+  sending = "sending",
+  sent = "sent",
 }
 
 interface IState {
@@ -158,7 +163,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
   };
   const options: RequestInit = {
     method: "POST",
-    headers: headers,
+    headers,
     redirect: "follow",
   };
 
@@ -170,37 +175,25 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       });
   };
 
-  // const mockInitialValues = (): Partial<IQuotationFormValues> => {
-  //   return quotationForm.reduce((prevValue, nextValue) => {
-  //     // @ts-ignore
-  //     const fieldsValues = nextValue.form.fields.reduce((fields, field) => {
-  //       let init = field!.name ? { [field.name]: "" } : {};
-  //       if (field.children) {
-  //         const childrenValues = field.children.reduce((i, child) => {
-  //           return { ...i, ...(child!.name ? { [child.name]: "" } : {}) };
-  //         }, {});
-
-  //         return { ...fields, ...childrenValues };
-  //       }
-  //       return {
-  //         ...init,
-  //         ...fields,
-  //       };
-  //     }, {});
-  //     return { ...prevValue, ...fieldsValues };
-  //   }, {});
-  // };
-
-  const setOTP = async ({ phoneNumber }: { phoneNumber?: string }) => {
+  const setOTP = async (payload?: string) => {
     dispatch({
       type: ActionTypes.phoneNumber,
-      payload: phoneNumber,
+      payload,
+    });
+    dispatch({
+      type: ActionTypes.phoneNumberState,
+      payload: PhoneNumberState.sending,
     });
     const res = await fetch(`${process.env.REACT_APP_API_URL}/send-otp`, {
       ...options,
-      body: JSON.stringify({ phoneNumber }),
+      body: JSON.stringify({ phoneNumber: payload }),
     });
-    console.log(res);
+    if (res) {
+      dispatch({
+        type: ActionTypes.phoneNumberState,
+        payload: PhoneNumberState.sent,
+      });
+    }
   };
 
   const handleFormSubmit = async (
@@ -208,12 +201,13 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
     bag: FormikHelpers<Partial<IQuotationFormValues>>
   ) => {
     if (isLastStep) {
-      history.push("/quotations");
+      console.log({ values });
+      // history.push("/quotations");
     } else if (
       hasPhoneNumber &&
       phoneNumberState !== PhoneNumberState.verified
     ) {
-      setOTP({ phoneNumber: values.phoneNumber });
+      await setOTP(values.phoneNumber);
 
       dispatch({
         type: ActionTypes.modal,
@@ -236,13 +230,12 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       type: ActionTypes.phoneNumberState,
       payload: PhoneNumberState.verifying,
     });
-    // TODO: verify -> change phoneNumberState -> next if verified;
     fetch(`${process.env.REACT_APP_API_URL}/verify-otp`, {
       ...options,
       body: JSON.stringify({ code: otp, phoneNumber }),
     })
       .then(async (res) => {
-        const { data, message, success } = await res.json();
+        const { data } = await res.json();
         if (data.verified) {
           dispatch({
             type: ActionTypes.phoneNumberState,
@@ -262,12 +255,11 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       })
       .catch((err) => {
         console.error(err);
-         dispatch({
-           type: ActionTypes.phoneNumberState,
-           payload: PhoneNumberState.failed,
-         });
+        dispatch({
+          type: ActionTypes.phoneNumberState,
+          payload: PhoneNumberState.failed,
+        });
       });
-      // .finally(() => {});
   };
 
   return (
@@ -307,7 +299,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                         Back
                       </button>
                       <button
-                        // disabled={}
+                        disabled={phoneNumberState === PhoneNumberState.sending}
                         // onClick={() => next(stepNumber)}
                         className="btn btn-primary"
                         type="submit"
@@ -365,9 +357,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                   </button>
                   <div>
                     <button
-                      onClick={() =>
-                        setOTP({ phoneNumber: values.phoneNumber })
-                      }
+                      onClick={() => setOTP(values.phoneNumber)}
                       className="btn btn-primary link icon-right"
                       type="button"
                     >

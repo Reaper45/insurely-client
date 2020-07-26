@@ -1,6 +1,5 @@
 import React from "react";
 
-import { BenefitType } from "types";
 import styled from "emotion";
 
 import { ReactComponent as XIcon } from "assets/icons/icon-exclamation.svg";

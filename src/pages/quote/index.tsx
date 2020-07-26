@@ -3,7 +3,6 @@ import { RouteComponentProps } from "react-router-dom";
 import numeral from "numeral";
 
 import styled from "emotion";
-import { QuoteType } from "types";
 
 import PageLayout from "components/PageLayout";
 import { PageFooter, Container } from "components/ui";
