@@ -158,13 +158,15 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
   // Request Details
   const headers = new Headers();
   headers.append("Content-Type", "application/json");
-  const next = () => {
-    dispatch({ type: ActionTypes.step, payload: stepNumber + 1 });
-  };
+
   const options: RequestInit = {
     method: "POST",
     headers,
     redirect: "follow",
+  };
+
+  const next = () => {
+    dispatch({ type: ActionTypes.step, payload: stepNumber + 1 });
   };
 
   const prev = () => {
@@ -202,7 +204,9 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
   ) => {
     if (isLastStep) {
       console.log({ values });
-      // history.push("/quotations");
+      history.push("/quotations", {
+        form: values
+      });
     } else if (
       hasPhoneNumber &&
       phoneNumberState !== PhoneNumberState.verified

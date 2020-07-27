@@ -1,5 +1,5 @@
-import React, { useReducer } from "react";
-import { RouteComponentProps } from "react-router-dom";
+import React, { useReducer, useEffect } from "react";
+import { RouteComponentProps, Redirect } from "react-router-dom";
 import numeral from "numeral";
 
 import styled from "emotion";
@@ -13,6 +13,7 @@ import Accordion from "components/ui/Accordion";
 import Checkout from "./Checkout";
 
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
+import { IQuotationFormValues } from "pages/form/quotation-form";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
@@ -105,33 +106,60 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   }
 `;
 
-interface IQuotesProps {
-  quotes: QuoteType[];
-}
-
 enum QuoteStates {
   initial = "initial",
   paid = "paid",
   paying = "paying",
   emailed = "emailed",
+  loading = "loading",
 }
 
 interface IState {
-  productId: string | null;
+  activeQuote: QuoteType | null;
   showDetails: boolean;
-  quote: QuoteStates;
+  quoteState: QuoteStates;
+  quotes: QuoteType[];
+  payablePremium: number;
 }
 
+// const initialQuotes: QuoteType[] = [
+//   {
+//     product_id: "1",
+//     insurer: {
+//       logo: require("../../assets/img/icea_lion.png"),
+//     },
+//     has_ipf: true,
+//   },
+//   {
+//     product_id: "2",
+//     insurer: {
+//       logo: require("../../assets/img/icea_lion.png"),
+//     },
+//     has_ipf: false,
+//   },
+//   {
+//     product_id: "3",
+//     insurer: {
+//       logo: require("../../assets/img/icea_lion.png"),
+//     },
+//     has_ipf: false,
+//   },
+// ];
+
 const initialState: IState = {
-  productId: null,
+  activeQuote: null,
   showDetails: false,
-  quote: QuoteStates.initial,
+  quoteState: QuoteStates.initial,
+  quotes: [],
+  payablePremium: 0,
 };
 
 enum ActionTypes {
-  productId = "PRODUCT_ID",
+  activeQuote = "ACTIVE_QUOTE",
   showDetails = "SHOW_DETAILS",
-  quote = "QUOTE_STATE",
+  quotes = "QUOTES",
+  quoteState = "QUOTE_STATE",
+  payablePremium = 'PAYABLE_PREMIUM'
 }
 
 interface IAction {
@@ -141,51 +169,81 @@ interface IAction {
 
 const reducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
-    case ActionTypes.productId:
-      return { ...state, productId: action.payload };
+    case ActionTypes.activeQuote:
+      return { ...state, activeQuote: action.payload };
     case ActionTypes.showDetails:
       return { ...state, showDetails: action.payload };
-    case ActionTypes.quote:
-      return { ...state, quote: action.payload };
+    case ActionTypes.quotes:
+      return { ...state, quotes: action.payload };
+    case ActionTypes.quoteState:
+      return { ...state, quoteState: action.payload };
+    case ActionTypes.payablePremium:
+      return { ...state, payablePremium: action.payload };
     default:
       return state;
   }
 };
 
-const quotes: QuoteType[] = [
-  {
-    product_id: "1",
-    insurer: {
-      logo: require("../../assets/img/icea_lion.png"),
-    },
-    has_ipf: true,
-  },
-  {
-    product_id: "2",
-    insurer: {
-      logo: require("../../assets/img/icea_lion.png"),
-    },
-    has_ipf: false,
-  },
-  {
-    product_id: "3",
-    insurer: {
-      logo: require("../../assets/img/icea_lion.png"),
-    },
-    has_ipf: false,
-  },
-];
-const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
+const Quotes: React.FC<RouteComponentProps<
+  any,
+  any,
+  { form: IQuotationFormValues }
+>> = ({ location }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { productId, showDetails, quote } = state;
-  const activeQuote = quotes.find((q) => q.product_id === productId);
+  const {
+    activeQuote,
+    showDetails,
+    quotes,
+    quoteState,
+    payablePremium,
+  } = state;
 
-  const handleProductClick = (id: string) => {
+  const handleProductClick = (quote: QuoteType) => {
     dispatch({
-      type: ActionTypes.productId,
-      payload: id,
+      type: ActionTypes.activeQuote,
+      payload: quote,
+    });
+    dispatch({
+      type: ActionTypes.payablePremium,
+      payload: quote?.premium,
     });
   };
+
+  useEffect(() => {
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+    const { sumInsured, typeOfCover: categoryId } = location.state.form;
+
+    fetch(`${process.env.REACT_APP_API_URL}/calculate-quote`, {
+      method: "POST",
+      headers,
+      redirect: "follow",
+      body: JSON.stringify({ sumInsured, categoryId }),
+    })
+      .then(async (results) => {
+        const { data } = await results.json();
+        dispatch({
+          type: ActionTypes.quotes,
+          payload: data.quotes,
+        });
+      })
+      .catch((err) => {
+        console.error(err);
+      })
+      .finally(() => {
+        dispatch({
+          type: ActionTypes.quoteState,
+          payload: QuoteStates.initial,
+        });
+      });
+  }, []);
+
+  if (
+    location.state === undefined ||
+    typeof location.state.form === "undefined"
+  ) {
+    return <Redirect to="/" />;
+  }
 
   return (
     <PageLayout title="Quotations">
@@ -199,11 +257,11 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
                   {quotes.map((q) => (
                     <ProductView
                       key={q.product_id}
-                      handleClick={() => handleProductClick(q.product_id)}
+                      handleClick={() => handleProductClick(q)}
                       logo={q.insurer?.logo}
-                      amount="28555"
+                      amount={q.premium.toString()}
                       hasIPF={q.has_ipf}
-                      active={productId === q.product_id}
+                      active={activeQuote?.product_id === q.product_id}
                     />
                   ))}
                 </ProductList>
@@ -233,13 +291,19 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
                           {
                             key: "cover-summary",
                             title: "Cover Summary",
-                            render: () => <ProductBenefits benefits={[]} />,
+                            render: () => (
+                              <ProductBenefits
+                                benefits={activeQuote!.benefits}
+                              />
+                            ),
                           },
                           {
                             key: "select-optional-benefits",
                             title: "Select optional benefits",
                             render: () => (
-                              <ProductOptionalBenefits benefits={[]} />
+                              <ProductOptionalBenefits
+                                benefits={activeQuote.optional_benefits}
+                              />
                             ),
                           },
                         ]}
@@ -247,7 +311,7 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
                     </div>
                     <div className="floating-amount">
                       <div className="amount">
-                        Ksh. {numeral("25444").format("0,0")}
+                        Ksh. {numeral(activeQuote.premium).format("0,0")}
                       </div>
                     </div>
                   </ProductSummary>
@@ -275,7 +339,7 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
                 <button
                   onClick={() =>
                     dispatch({
-                      type: ActionTypes.quote,
+                      type: ActionTypes.quoteState,
                       payload: QuoteStates.paying,
                     })
                   }
@@ -288,15 +352,15 @@ const Quotes: React.FC<IQuotesProps & RouteComponentProps> = () => {
             </Container>
           </PageFooter>
           <Checkout
-            show={quote === QuoteStates.paying}
+            show={quoteState === QuoteStates.paying}
             close={() => {
               dispatch({
-                type: ActionTypes.quote,
-                payload: quote === QuoteStates.initial,
+                type: ActionTypes.quoteState,
+                payload: QuoteStates.initial,
               });
             }}
-            phoneNumber="0719747908"
-            amount="23577"
+            phoneNumber={location.state.form.phoneNumber}
+            amount={numeral(payablePremium).format('0,0')}
           />
         </>
       )}

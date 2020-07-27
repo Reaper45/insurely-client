@@ -19,6 +19,9 @@ const ProductBenefit = styled("div")<{ included?: boolean }>`
   span {
     margin-left: .5rem;
     font-size: 16px;
+    :first-of-type {
+      flex-grow: 1;
+    }
   }
   svg {
     height: 18px;
@@ -31,23 +34,13 @@ const ProductBenefit = styled("div")<{ included?: boolean }>`
 const ProductBenefits: React.FC<IProductBenefitsProps> = ({ benefits }) => {
   return (
     <div>
-      <ProductBenefit included>
-        <CheckCircleIcon />
-        <span>Geographical area</span>
-      </ProductBenefit>
-      <ProductBenefit included>
-        <CheckCircleIcon />
-        <span>Partial theft</span>
-        <span>Upto Kes. 3,000</span>
-      </ProductBenefit>
-      <ProductBenefit included>
-        <CheckCircleIcon />
-        <span>Windscreen</span>
-      </ProductBenefit>
-      <ProductBenefit included={false}>
-        <XIcon />
-        <span>Excess Protector</span>
-      </ProductBenefit>
+      {benefits.map((benefit) => (
+        <ProductBenefit included key={benefit.id}>
+          {benefit.in_build ? <CheckCircleIcon /> : <XIcon />}
+          <span>{benefit.name}</span>
+          {benefit.limit && <span>{benefit.limit}</span>}
+        </ProductBenefit>
+      ))}
     </div>
   );
 };

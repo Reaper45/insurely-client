@@ -43,11 +43,14 @@ declare global {
   };
 
   export type QuoteType = {
-    id?: string;
     product_id: string;
     name?: string;
-    insurer?: Partial<InsurerType>;
+    insurer: Partial<InsurerType>;
     has_ipf: boolean;
+    premium: number;
+    benefits: BenefitType[];
+    optional_benefits: BenefitType[];
+    charges: Partial<ChargeType>[];
   };
 
   export type BenefitType = {
@@ -56,6 +59,8 @@ declare global {
     product?: Partial<ProductType>;
     tariffs?: Partial<TariffType>;
     charges?: Partial<ChargeType>;
+    in_build?: boolean;
+    limit?: string;
   };
 
   export type ProductType = {
