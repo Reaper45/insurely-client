@@ -13,14 +13,33 @@ const ProductBenefit = styled("div")<{ included?: boolean }>`
   display: flex;
   align-items: center;
   padding: 8px 0;
-  margin-bottom: .25rem;
+  @media (max-width: 481px) {
+    margin-bottom: 0.25rem;
+  }
   color: ${(props) =>
     props.included ? props.theme.colors.secondary : props.theme.colors.red};
-  span {
-    margin-left: .5rem;
-    font-size: 16px;
-    :first-of-type {
-      flex-grow: 1;
+  div {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    @media (max-width: 481px) {
+      flex-wrap: wrap;
+    }
+    span {
+      margin-left: 0.5rem;
+      font-size: 16px;
+      :first-of-type {
+        flex-grow: 1;
+      }
+      @media (max-width: 481px) {
+        font-size: 14px;
+        width: 100%;
+        :last-of-type {
+          font-size: small;
+          margin-top: 3px;
+          opacity: 0.66;
+        }
+      }
     }
   }
   svg {
@@ -37,8 +56,10 @@ const ProductBenefits: React.FC<IProductBenefitsProps> = ({ benefits }) => {
       {benefits.map((benefit) => (
         <ProductBenefit included key={benefit.id}>
           {benefit.in_build ? <CheckCircleIcon /> : <XIcon />}
-          <span>{benefit.name}</span>
-          {benefit.limit && <span>{benefit.limit}</span>}
+          <div>
+            <span>{benefit.name}</span>
+            {benefit.limit && <span>{benefit.limit}</span>}
+          </div>
         </ProductBenefit>
       ))}
     </div>

@@ -112,6 +112,7 @@ enum QuoteStates {
   paying = "paying",
   emailed = "emailed",
   loading = "loading",
+  sending = "sending"
 }
 
 interface IState {
@@ -121,30 +122,6 @@ interface IState {
   quotes: QuoteType[];
   payablePremium: number;
 }
-
-// const initialQuotes: QuoteType[] = [
-//   {
-//     product_id: "1",
-//     insurer: {
-//       logo: require("../../assets/img/icea_lion.png"),
-//     },
-//     has_ipf: true,
-//   },
-//   {
-//     product_id: "2",
-//     insurer: {
-//       logo: require("../../assets/img/icea_lion.png"),
-//     },
-//     has_ipf: false,
-//   },
-//   {
-//     product_id: "3",
-//     insurer: {
-//       logo: require("../../assets/img/icea_lion.png"),
-//     },
-//     has_ipf: false,
-//   },
-// ];
 
 const initialState: IState = {
   activeQuote: null,
@@ -159,7 +136,7 @@ enum ActionTypes {
   showDetails = "SHOW_DETAILS",
   quotes = "QUOTES",
   quoteState = "QUOTE_STATE",
-  payablePremium = 'PAYABLE_PREMIUM'
+  payablePremium = "PAYABLE_PREMIUM",
 }
 
 interface IAction {
@@ -209,9 +186,24 @@ const Quotes: React.FC<RouteComponentProps<
     });
   };
 
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json");
+
+  const sendEmail = async () => {
+     dispatch({
+       type: ActionTypes.quoteState,
+       payload: QuoteStates.sending,
+     });
+    const result = await fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
+      headers,
+      redirect: "follow",
+      method: "POST",
+      body: JSON.stringify({ qoute: activeQuote }),
+    });
+
+  };
+
   useEffect(() => {
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
     const { sumInsured, typeOfCover: categoryId } = location.state.form;
 
     fetch(`${process.env.REACT_APP_API_URL}/calculate-quote`, {
@@ -258,7 +250,7 @@ const Quotes: React.FC<RouteComponentProps<
                     <ProductView
                       key={q.product_id}
                       handleClick={() => handleProductClick(q)}
-                      logo={q.insurer?.logo}
+                      insurerId={q.insurer.id}
                       amount={q.premium.toString()}
                       hasIPF={q.has_ipf}
                       active={activeQuote?.product_id === q.product_id}
@@ -280,7 +272,7 @@ const Quotes: React.FC<RouteComponentProps<
                         {showDetails ? "Hide details" : "Click to see details"}
                         <img
                           className="icon-insurer"
-                          src={activeQuote.insurer?.logo}
+                          src={`${process.env.REACT_APP_API_URL}/insurer/${activeQuote.insurer?.id}/logo`}
                           alt={activeQuote.insurer?.name}
                         />
                       </button>
@@ -331,6 +323,7 @@ const Quotes: React.FC<RouteComponentProps<
               </button>
               <div className="flex justify-space-between sm-flex-1">
                 <button
+                  onClick={sendEmail}
                   className="btn btn-light link icon-left mr-2"
                   type="button"
                 >
@@ -360,7 +353,7 @@ const Quotes: React.FC<RouteComponentProps<
               });
             }}
             phoneNumber={location.state.form.phoneNumber}
-            amount={numeral(payablePremium).format('0,0')}
+            amount={numeral(payablePremium).format("0,0")}
           />
         </>
       )}

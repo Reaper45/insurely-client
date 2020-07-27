@@ -55,7 +55,7 @@ const ProductOptionalBenefits: React.FC<IProductOptionalBenefitsProps> = ({
     <div>
       <OptionalBenefit>
         <CheckboxInput label="Road Rescue" />
-        {/* <div className="description">Road rescue services from AA</div> */}
+        <div className="description">Road rescue services from AA</div>
       </OptionalBenefit>
       <OptionalBenefit>
         <CheckboxInput label="Entertainment unit" />

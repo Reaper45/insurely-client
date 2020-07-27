@@ -14,12 +14,15 @@ const Main = styled("main")`
 const PageFooter = styled("div")`
   width: 100%;
   border-top: solid 1px ${(props) => props.theme.colors.light};
-  padding: 1.5rem 0;
+  padding: 1rem 0;
   position: fixed;
   z-index: 10;
   bottom: 0;
   left: 0;
   background: #fff;
+  @media (min-width: 768px) {
+    padding: 1.5rem 0;
+  }
 `;
 
 const baseInputStyles = css(`

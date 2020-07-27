@@ -2,7 +2,7 @@ import React, { useReducer, useEffect } from "react";
 import numeral from "numeral";
 
 import styled from "emotion";
-
+import { phoneNumber as nomalizePhoneNumber } from "lib/normalizer";
 import Modal from "components/ui/Modal";
 import { Input, FieldWrapper } from "components/ui";
 
@@ -82,6 +82,12 @@ const CheckoutManualProcess = styled("div")<{ collapse: boolean }>`
     padding: ${(props) => (props.collapse ? "0" : "0 1rem 1.5rem")};
     opacity: ${(props) => (props.collapse ? "0" : "1")};
     transition: all ease-in-out 200ms;
+    ${(props) =>
+      props.collapse &&
+      `
+      position: relative;
+      z-index: -1;
+    `}
     li {
       padding: 8px;
       font-size: 14px;
@@ -104,19 +110,32 @@ const TransactionCodeField = styled(FieldWrapper)`
   }
 `;
 
+enum PaymentStates {
+  pending = "pending",
+  processing = "processing",
+  confirming = "confirming",
+  success = "success", // STK push was successful
+  failed = "failed", // STK push failed
+  confirmed = "confirmed", // Payment received
+  incomplete = "incomplete" // STK was successful but canceled / insufficient payment
+}
+
 interface IState {
   newPhoneNumber: string;
   manualCheckout: boolean;
+  payment: PaymentStates;
 }
 
 const initialState: IState = {
   newPhoneNumber: "",
   manualCheckout: false,
+  payment: PaymentStates.pending,
 };
 
 enum ActionTypes {
   phoneNumber = "PHONE_NUMBER",
   manualCheckout = "MANUAL_CHECKOUT",
+  payment = "PAYMENT_STATE"
 }
 
 interface IAction {
@@ -130,6 +149,8 @@ const reducer = (state: IState, action: IAction): IState => {
       return { ...state, newPhoneNumber: action.payload };
     case ActionTypes.manualCheckout:
       return { ...state, manualCheckout: action.payload };
+    case ActionTypes.payment:
+      return { ...state, payment: action.payload };
     default:
       return state;
   }
@@ -150,6 +171,45 @@ const Checkout: React.FC<{
       payload: phoneNumber,
     });
   }, [phoneNumber]);
+
+  const initiatePayment = async () => {
+    dispatch({
+      type: ActionTypes.payment,
+      payload: PaymentStates.processing,
+    });
+    const headers = new Headers();
+    headers.append("Content-Type", "application/json");
+
+    const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
+    const payload = {
+      amount: 5, // TODO: Replace with actual amout
+      callbackURL: process.env.REACT_APP_MPESA_CALLBACK,
+      accountRef: "Other",
+      phoneNumber: nomalizedPhoneNumber,
+      transactionDescription: "Some desc",
+    };
+
+    const response = await fetch(
+      `${process.env.REACT_APP_MPESA_API_URL}/c2b/checkout`,
+      {
+        method: "POST",
+        redirect: "follow",
+        headers,
+        body: JSON.stringify(payload),
+      }
+    );
+    const data = await response.json();
+    console.log(data);
+    if(data) {
+      dispatch({
+        type: ActionTypes.payment,
+        payload: PaymentStates.success,
+      });
+    }
+  };
+
+  // TODO: poll for transaction
+  const confirmPayment = () => {}
 
   return (
     <Modal title="Checkout" show={show} close={close}>
@@ -216,14 +276,11 @@ const Checkout: React.FC<{
         </CheckoutManualProcess>
         {!manualCheckout && (
           <CheckoutBtnGroup className="flex justify-space-between align-stretch">
-            <button
-              className="btn btn-light btn-verify mr-2"
-              onClick={close}
-            >
+            <button className="btn btn-light btn-verify mr-2" onClick={close}>
               Cancel
             </button>
             <button
-              // onClick={() => setOTP({ phoneNumber: values.phoneNumber })}
+              onClick={initiatePayment}
               className="btn btn-primary w-full icon-left"
               type="button"
             >

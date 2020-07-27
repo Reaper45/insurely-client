@@ -3,6 +3,7 @@ import { Formik, Form, FormikHelpers } from "formik";
 import { RouteChildrenProps } from "react-router-dom";
 
 import styled from "emotion";
+import { phoneNumber as nomalizePhoneNumber } from "lib/normalizer";
 import { Container, PageFooter, Input, FieldWrapper } from "components/ui";
 import PageLayout from "components/PageLayout";
 import Modal from "components/ui/Modal";
@@ -177,7 +178,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       });
   };
 
-  const setOTP = async (payload?: string) => {
+  const setOTP = async (payload: string) => {
     dispatch({
       type: ActionTypes.phoneNumber,
       payload,
@@ -186,9 +187,11 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       type: ActionTypes.phoneNumberState,
       payload: PhoneNumberState.sending,
     });
+
+    const nomalizedPhoneNumber = nomalizePhoneNumber(payload);
     const res = await fetch(`${process.env.REACT_APP_API_URL}/send-otp`, {
       ...options,
-      body: JSON.stringify({ phoneNumber: payload }),
+      body: JSON.stringify({ phoneNumber: nomalizedPhoneNumber }),
     });
     if (res) {
       dispatch({
@@ -205,13 +208,13 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
     if (isLastStep) {
       console.log({ values });
       history.push("/quotations", {
-        form: values
+        form: values,
       });
     } else if (
       hasPhoneNumber &&
       phoneNumberState !== PhoneNumberState.verified
     ) {
-      await setOTP(values.phoneNumber);
+      if (values.phoneNumber) await setOTP(values.phoneNumber);
 
       dispatch({
         type: ActionTypes.modal,
@@ -234,9 +237,11 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       type: ActionTypes.phoneNumberState,
       payload: PhoneNumberState.verifying,
     });
+
+    const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
     fetch(`${process.env.REACT_APP_API_URL}/verify-otp`, {
       ...options,
-      body: JSON.stringify({ code: otp, phoneNumber }),
+      body: JSON.stringify({ code: otp, phoneNumber: nomalizedPhoneNumber }),
     })
       .then(async (res) => {
         const { data } = await res.json();
@@ -304,7 +309,6 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                       </button>
                       <button
                         disabled={phoneNumberState === PhoneNumberState.sending}
-                        // onClick={() => next(stepNumber)}
                         className="btn btn-primary"
                         type="submit"
                       >
@@ -361,7 +365,9 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                   </button>
                   <div>
                     <button
-                      onClick={() => setOTP(values.phoneNumber)}
+                      onClick={() => {
+                        if (values.phoneNumber) setOTP(values.phoneNumber);
+                      }}
                       className="btn btn-primary link icon-right"
                       type="button"
                     >

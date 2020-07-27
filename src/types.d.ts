@@ -58,7 +58,7 @@ declare global {
     name: string;
     product?: Partial<ProductType>;
     tariffs?: Partial<TariffType>;
-    charges?: Partial<ChargeType>;
+    // charges?: Partial<ChargeType>;
     in_build?: boolean;
     limit?: string;
   };
@@ -85,6 +85,7 @@ declare global {
     value: string;
     is_percentage: string;
     is_active: string;
+
   };
 
   export type ChargeType = {

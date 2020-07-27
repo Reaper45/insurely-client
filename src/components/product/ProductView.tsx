@@ -10,7 +10,7 @@ import { ReactComponent as ExclamationIcon } from "assets/icons/icon-exclamation
 
 interface IProductViewProps {
   handleClick: () => void;
-  logo?: string;
+  insurerId?: string;
   amount: string;
   hasIPF?: boolean;
   active?: boolean;
@@ -90,7 +90,7 @@ const ProductViewWrapper = styled("div")<Partial<IProductViewProps>>`
 
 const ProductView: React.FC<IProductViewProps> = ({
   handleClick,
-  logo,
+  insurerId,
   active,
   amount,
   hasIPF,
@@ -99,7 +99,10 @@ const ProductView: React.FC<IProductViewProps> = ({
     <ProductViewWrapper onClick={handleClick} active={active} hasIPF={hasIPF}>
       <CheckboxInput checked={active} />
       <div className="logo">
-        <img src={logo} alt="" />
+        <img
+          src={`${process.env.REACT_APP_API_URL}/insurer/${insurerId}/logo`}
+          alt=""
+        />
       </div>
       <div className="details">
         <div>Ksh.&nbsp; {numeral(amount).format("0,0")}</div>
