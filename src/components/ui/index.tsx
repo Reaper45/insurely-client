@@ -8,7 +8,11 @@ const Container = styled("div")`
 
 const Main = styled("main")`
   width: 100%;
+  height: calc(100% - 73px);
   border-top: solid 1px ${(props) => props.theme.colors.light};
+  @media (min-width: 768px) {
+    height: calc(100% - 83px);
+  }
 `;
 
 const PageFooter = styled("div")`

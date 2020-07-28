@@ -10,10 +10,11 @@ import ProductView from "components/product/ProductView";
 import ProductBenefits from "components/product/ProductBenefits";
 import ProductOptionalBenefits from "components/product/ProductOptionalBenefits";
 import Accordion from "components/ui/Accordion";
+import { IQuotationFormValues } from "pages/form/quotation-form";
 import Checkout from "./Checkout";
 
 import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
-import { IQuotationFormValues } from "pages/form/quotation-form";
+import { ReactComponent as NoDataIcon } from "assets/icons/no-data.svg";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
@@ -106,13 +107,42 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   }
 `;
 
+const EmptyCatalog = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  margin: -2rem auto 0;
+  text-align: center;
+  max-width: 250px;
+  svg {
+    height: 100px;
+    width: auto;
+    margin-bottom: 2rem;
+  }
+  .title {
+    color: ${(props) => props.theme.colors.dark};
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+    display: block;
+  }
+  p {
+    color: ${(props) => props.theme.colors.secondary};
+    line-height: 1.4;
+    font-size: small;
+  }
+  @media (min-width: 768px) {
+  }
+`;
+
 enum QuoteStates {
   initial = "initial",
   paid = "paid",
   paying = "paying",
   emailed = "emailed",
   loading = "loading",
-  sending = "sending"
+  sending = "sending",
 }
 
 interface IState {
@@ -190,17 +220,16 @@ const Quotes: React.FC<RouteComponentProps<
   headers.append("Content-Type", "application/json");
 
   const sendEmail = async () => {
-     dispatch({
-       type: ActionTypes.quoteState,
-       payload: QuoteStates.sending,
-     });
+    dispatch({
+      type: ActionTypes.quoteState,
+      payload: QuoteStates.sending,
+    });
     const result = await fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
       headers,
       redirect: "follow",
       method: "POST",
       body: JSON.stringify({ qoute: activeQuote }),
     });
-
   };
 
   useEffect(() => {
@@ -241,75 +270,90 @@ const Quotes: React.FC<RouteComponentProps<
     <PageLayout title="Quotations">
       {() => (
         <>
-          <Container>
-            <QuotesWrapper>
-              <div className="title">Choose your preferred insurer</div>
-              <ProductsWrapper>
-                <ProductList>
-                  {quotes.map((q) => (
-                    <ProductView
-                      key={q.product_id}
-                      handleClick={() => handleProductClick(q)}
-                      insurerId={q.insurer.id}
-                      amount={q.premium.toString()}
-                      hasIPF={q.has_ipf}
-                      active={activeQuote?.product_id === q.product_id}
-                    />
-                  ))}
-                </ProductList>
-                {activeQuote && (
-                  <ProductSummary showDetails={showDetails}>
-                    <div className="toggle-container">
-                      <button
-                        className="btn btn-toggle btn-primary"
-                        onClick={() => {
-                          dispatch({
-                            type: ActionTypes.showDetails,
-                            payload: !showDetails,
-                          });
-                        }}
-                      >
-                        {showDetails ? "Hide details" : "Click to see details"}
-                        <img
-                          className="icon-insurer"
-                          src={`${process.env.REACT_APP_API_URL}/insurer/${activeQuote.insurer?.id}/logo`}
-                          alt={activeQuote.insurer?.name}
-                        />
-                      </button>
-                    </div>
-                    <div className="summary">
-                      <Accordion
-                        items={[
-                          {
-                            key: "cover-summary",
-                            title: "Cover Summary",
-                            render: () => (
-                              <ProductBenefits
-                                benefits={activeQuote!.benefits}
-                              />
-                            ),
-                          },
-                          {
-                            key: "select-optional-benefits",
-                            title: "Select optional benefits",
-                            render: () => (
-                              <ProductOptionalBenefits
-                                benefits={activeQuote.optional_benefits}
-                              />
-                            ),
-                          },
-                        ]}
+          <Container style={{ height: "100%" }}>
+            {quotes.length === 0 ? (
+              <EmptyCatalog className="flex align-center ">
+                <div>
+                  <NoDataIcon />
+                  <div className="title">Oh no!</div>
+                  <p>
+                    We've got nothing for you at the moment. We hope you don't
+                    mind checking with us later!{" "}
+                  </p>
+                </div>
+              </EmptyCatalog>
+            ) : (
+              <QuotesWrapper>
+                <div className="title">Choose your preferred insurer</div>
+                <ProductsWrapper>
+                  <ProductList>
+                    {quotes.map((q) => (
+                      <ProductView
+                        key={q.product_id}
+                        handleClick={() => handleProductClick(q)}
+                        insurerId={q.insurer.id}
+                        amount={q.premium.toString()}
+                        hasIPF={q.has_ipf}
+                        active={activeQuote?.product_id === q.product_id}
                       />
-                    </div>
-                    <div className="floating-amount">
-                      <div className="amount">
-                        Ksh. {numeral(activeQuote.premium).format("0,0")}
+                    ))}
+                  </ProductList>
+                  {activeQuote && (
+                    <ProductSummary showDetails={showDetails}>
+                      <div className="toggle-container">
+                        <button
+                          className="btn btn-toggle btn-primary"
+                          onClick={() => {
+                            dispatch({
+                              type: ActionTypes.showDetails,
+                              payload: !showDetails,
+                            });
+                          }}
+                        >
+                          {showDetails
+                            ? "Hide details"
+                            : "Click to see details"}
+                          <img
+                            className="icon-insurer"
+                            src={`${process.env.REACT_APP_API_URL}/insurer/${activeQuote.insurer?.id}/logo`}
+                            alt={activeQuote.insurer?.name}
+                          />
+                        </button>
                       </div>
-                    </div>
-                  </ProductSummary>
-                )}
-              </ProductsWrapper>
-            </QuotesWrapper>
+                      <div className="summary">
+                        <Accordion
+                          items={[
+                            {
+                              key: "cover-summary",
+                              title: "Cover Summary",
+                              render: () => (
+                                <ProductBenefits
+                                  benefits={activeQuote!.benefits}
+                                />
+                              ),
+                            },
+                            {
+                              key: "select-optional-benefits",
+                              title: "Select optional benefits",
+                              render: () => (
+                                <ProductOptionalBenefits
+                                  benefits={activeQuote.optional_benefits}
+                                />
+                              ),
+                            },
+                          ]}
+                        />
+                      </div>
+                      <div className="floating-amount">
+                        <div className="amount">
+                          Ksh. {numeral(activeQuote.premium).format("0,0")}
+                        </div>
+                      </div>
+                    </ProductSummary>
+                  )}
+                </ProductsWrapper>
+              </QuotesWrapper>
+            )}
           </Container>
           <PageFooter>
             <Container className="flex justify-space-between">
