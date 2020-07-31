@@ -8,6 +8,9 @@ import { ReactComponent as CloseIcon } from "assets/icons/icon-x.svg";
 
 const HeaderWrapper = styled("header")`
   padding: 15px 0;
+  border-bottom: solid 1px ${(props) => props.theme.colors.light};
+  position: fixed;
+  width: 100%;
 `;
 
 const NavWrapper = styled("nav")`

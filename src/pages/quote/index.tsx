@@ -88,6 +88,9 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
       border-radius: 2rem;
       color: ${(props) => props.theme.colors.white};
       font-weight: bold;
+      font-size: 14px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+        0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
   }
   @media (min-width: 768px) {
@@ -112,8 +115,6 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
 `;
 
 const EmptyCatalog = styled("div")`
-  display: flex;
-  align-items: center;
   justify-content: center;
   height: 100%;
   margin: -4rem auto 0;
@@ -172,7 +173,6 @@ interface IState {
   showDetails: boolean;
   quoteState: QuoteStates;
   quotes: QuoteType[];
-  payablePremium: number;
   optionalBenefits: {
     id: string;
     premium: string;
@@ -185,7 +185,6 @@ const initialState: IState = {
   showDetails: false,
   quoteState: QuoteStates.initial,
   quotes: [],
-  payablePremium: 0,
   optionalBenefits: [],
 };
 
@@ -194,7 +193,6 @@ enum ActionTypes {
   showDetails = "SHOW_DETAILS",
   quotes = "QUOTES",
   quoteState = "QUOTE_STATE",
-  payablePremium = "PAYABLE_PREMIUM",
   addOptionalBenefits = "ADD_OPTIONAL_BENEFITS",
   removeOptionalBenefits = "REMOVE_OPTIONAL_BENEFITS",
 }
@@ -217,9 +215,6 @@ const reducer = (state: IState, action: IAction): IState => {
 
     case ActionTypes.quoteState:
       return { ...state, quoteState: action.payload };
-
-    case ActionTypes.payablePremium:
-      return { ...state, payablePremium: action.payload };
 
     case ActionTypes.addOptionalBenefits:
       return {
@@ -252,17 +247,12 @@ const Quotes: React.FC<RouteComponentProps<
     showDetails,
     quotes,
     quoteState,
-    payablePremium,
   } = state;
 
   const handleProductClick = (quote: QuoteType) => {
     dispatch({
       type: ActionTypes.activeQuote,
       payload: quote,
-    });
-    dispatch({
-      type: ActionTypes.payablePremium,
-      payload: quote?.premium,
     });
   };
 
@@ -408,7 +398,6 @@ const Quotes: React.FC<RouteComponentProps<
   ) {
     return <Redirect to="/" />;
   }
-  console.log(state.activeQuote?.premium)
 
   return (
     <PageLayout title="Quotations">
@@ -487,7 +476,7 @@ const Quotes: React.FC<RouteComponentProps<
                         </div>
                         <div className="floating-amount">
                           <div className="amount">
-                            Ksh. {numeral(activeQuote.premium).format("0,0")}
+                            Ksh. {numeral(activeQuote.premium).format("0,0.00")}
                           </div>
                         </div>
                       </ProductSummary>
@@ -522,6 +511,7 @@ const Quotes: React.FC<RouteComponentProps<
                       payload: QuoteStates.paying,
                     })
                   }
+                  disabled={!state.activeQuote}
                   className="btn btn-primary"
                   type="submit"
                 >
@@ -539,7 +529,7 @@ const Quotes: React.FC<RouteComponentProps<
               });
             }}
             phoneNumber={location.state.form.phoneNumber}
-            amount={numeral(payablePremium).format("0,0")}
+            amount={numeral(activeQuote?.premium).format("0,0")}
           />
         </>
       )}

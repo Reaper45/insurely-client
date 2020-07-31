@@ -2,7 +2,7 @@ import React, { useReducer, useEffect } from "react";
 import numeral from "numeral";
 
 import styled from "emotion";
-import { phoneNumber as nomalizePhoneNumber } from "lib/normalizer";
+import { checkout as pay, checkTransaction } from "lib/api";
 import Modal from "components/ui/Modal";
 import { Input, FieldWrapper } from "components/ui";
 
@@ -117,25 +117,31 @@ enum PaymentStates {
   success = "success", // STK push was successful
   failed = "failed", // STK push failed
   confirmed = "confirmed", // Payment received
-  incomplete = "incomplete" // STK was successful but canceled / insufficient payment
+  incomplete = "incomplete", // STK was successful but canceled / insufficient payment
 }
 
 interface IState {
-  newPhoneNumber: string;
+  phoneNumber: string;
   manualCheckout: boolean;
   payment: PaymentStates;
+  checkoutId: string;
+  // pollCount: number;
 }
 
 const initialState: IState = {
-  newPhoneNumber: "",
+  phoneNumber: "",
   manualCheckout: false,
   payment: PaymentStates.pending,
+  checkoutId: "",
+  // pollCount: 0,
 };
 
 enum ActionTypes {
   phoneNumber = "PHONE_NUMBER",
   manualCheckout = "MANUAL_CHECKOUT",
-  payment = "PAYMENT_STATE"
+  payment = "PAYMENT_STATE",
+  checkoutId = "CHECKOUT_ID",
+  // pollCount = "ADD_POLL_COUNT",
 }
 
 interface IAction {
@@ -146,11 +152,16 @@ interface IAction {
 const reducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
     case ActionTypes.phoneNumber:
-      return { ...state, newPhoneNumber: action.payload };
+      return { ...state, phoneNumber: action.payload };
     case ActionTypes.manualCheckout:
       return { ...state, manualCheckout: action.payload };
     case ActionTypes.payment:
       return { ...state, payment: action.payload };
+    case ActionTypes.checkoutId:
+      return { ...state, checkoutId: action.payload };
+    // case ActionTypes.pollCount:
+    //   const pollCount = state.pollCount + 1;
+    //   return { ...state, pollCount };
     default:
       return state;
   }
@@ -161,65 +172,93 @@ const Checkout: React.FC<{
   close: () => void;
   amount: string;
   phoneNumber: string;
-}> = ({ amount, close, phoneNumber, show }) => {
+}> = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const { newPhoneNumber, manualCheckout } = state;
 
   useEffect(() => {
     dispatch({
       type: ActionTypes.phoneNumber,
-      payload: phoneNumber,
+      payload: props.phoneNumber,
     });
-  }, [phoneNumber]);
+  }, []);
+
+  const headers = new Headers();
+  headers.append("Content-Type", "application/json");
 
   const initiatePayment = async () => {
     dispatch({
       type: ActionTypes.payment,
       payload: PaymentStates.processing,
     });
-    const headers = new Headers();
-    headers.append("Content-Type", "application/json");
 
-    const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
-    const payload = {
-      amount: 5, // TODO: Replace with actual amout
-      callbackURL: process.env.REACT_APP_MPESA_CALLBACK,
-      accountRef: "Other",
-      phoneNumber: nomalizedPhoneNumber,
-      transactionDescription: "Some desc",
-    };
-
-    const response = await fetch(
-      `${process.env.REACT_APP_MPESA_API_URL}/c2b/checkout`,
-      {
-        method: "POST",
-        redirect: "follow",
-        headers,
-        body: JSON.stringify(payload),
-      }
-    );
-    const data = await response.json();
-    console.log(data);
-    if(data) {
+    const data = await pay({
+      amount: props.amount,
+      phoneNumber: state.phoneNumber,
+    });
+    
+    console.log({ data });
+    if (data) {
       dispatch({
         type: ActionTypes.payment,
         payload: PaymentStates.success,
       });
+      dispatch({
+        type: ActionTypes.checkoutId,
+        payload: data.MPESA_RESPONSE.CheckoutRequestID,
+      });
+      // @ts-ignore
+      confirmPayment(data.MPESA_RESPONSE.CheckoutRequestID);
     }
   };
 
-  // TODO: poll for transaction
-  const confirmPayment = () => {}
+  const confirmPayment = (checkoutId: string) => {
+    dispatch({
+      type: ActionTypes.payment,
+      payload: PaymentStates.confirming,
+    });
 
+    let pollCount = 0;
+    const refreshId = setInterval(async () => {
+      pollCount += 1;
+      if (pollCount === 10) {
+        clearInterval(refreshId);
+      }
+      const data = await checkTransaction({
+        checkoutId,
+        phoneNumber: state.phoneNumber,
+      });
+      console.log({ data });
+      if (data && data.success) {
+        dispatch({
+          type: ActionTypes.payment,
+          payload: PaymentStates.confirmed,
+        });
+      } else {
+        dispatch({
+          type: ActionTypes.payment,
+          payload: PaymentStates.failed,
+        });
+      }
+    }, 6000);
+  };
+  
   return (
-    <Modal title="Checkout" show={show} close={close}>
+    <Modal
+      title="Checkout"
+      show={props.show}
+      close={props.close}
+      loading={
+        state.payment === PaymentStates.confirming ||
+        state.payment === PaymentStates.processing
+      }
+    >
       <CheckoutModalContent>
         <FieldWrapper style={{ marginBottom: "1.5rem" }}>
           <Input
-            name=""
-            placeholder={phoneNumber}
-            type=""
-            value={newPhoneNumber}
+            name="phoneNumber"
+            placeholder={state.phoneNumber}
+            type="text"
+            value={state.phoneNumber}
             onChange={(e) => {
               dispatch({
                 type: ActionTypes.phoneNumber,
@@ -237,13 +276,13 @@ const Checkout: React.FC<{
             </div>
           </PhoneNumberLabel>
         </FieldWrapper>
-        <CheckoutManualProcess collapse={!manualCheckout}>
+        <CheckoutManualProcess collapse={!state.manualCheckout}>
           <div
             className="header flex justify-space-between"
             onClick={() =>
               dispatch({
                 type: ActionTypes.manualCheckout,
-                payload: !manualCheckout,
+                payload: !state.manualCheckout,
               })
             }
           >
@@ -259,10 +298,10 @@ const Checkout: React.FC<{
                 Enter Business number <b>000000</b>
               </li>
               <li>
-                Enter Account number <b>{phoneNumber}</b>
+                Enter Account number <b>{state.phoneNumber}</b>
               </li>
               <li>
-                Enter the Amount <b>{numeral(amount).format("0,0")}</b>
+                Enter the Amount <b>{numeral(props.amount).format("0,0")}</b>
               </li>
               <li>Enter your M-PESA PIN and Send</li>
               <li>You will receive a confirmation SMS from M-PESA</li>
@@ -274,9 +313,12 @@ const Checkout: React.FC<{
             </TransactionCodeField>
           </div>
         </CheckoutManualProcess>
-        {!manualCheckout && (
+        {!state.manualCheckout && (
           <CheckoutBtnGroup className="flex justify-space-between align-stretch">
-            <button className="btn btn-light btn-verify mr-2" onClick={close}>
+            <button
+              className="btn btn-light btn-verify mr-2"
+              onClick={props.close}
+            >
               Cancel
             </button>
             <button
@@ -285,7 +327,7 @@ const Checkout: React.FC<{
               type="button"
             >
               <CurrencyIcon />
-              Complete payment: Ksh. {numeral(amount).format("0,0")}
+              Complete payment: Ksh. {numeral(props.amount).format("0,0")}
             </button>
           </CheckoutBtnGroup>
         )}

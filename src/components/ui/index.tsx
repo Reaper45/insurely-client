@@ -9,9 +9,10 @@ const Container = styled("div")`
 const Main = styled("main")`
   width: 100%;
   height: calc(100% - 73px);
-  border-top: solid 1px ${(props) => props.theme.colors.light};
+  padding-top: 73px;
   @media (min-width: 768px) {
     height: calc(100% - 83px);
+    padding-top: 83px;
   }
 `;
 

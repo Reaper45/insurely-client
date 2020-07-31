@@ -3,6 +3,7 @@ import { createRef, RefObject } from "react";
 import ReactDOM from "react-dom";
 
 import styled from "emotion";
+import Loader from "components/ui/Loader";
 
 import { ReactComponent as CloseIcon } from "assets/icons/icon-x.svg";
 
@@ -13,6 +14,7 @@ declare global {
     show: boolean;
     close?: CloseFn;
     title: string;
+    loading?: boolean;
   }
 }
 
@@ -53,6 +55,7 @@ const ModalContent = styled("div")`
   width: 100%;
   background: ${(props) => props.theme.colors.white};
   box-sizing: border-box;
+  position: relative;
 `;
 
 const ModalHeader = styled("div")`
@@ -68,6 +71,16 @@ const ModalHeader = styled("div")`
   svg {
     fill: ${(props) => props.theme.colors.gray};
   }
+`;
+
+const ModalLoader = styled("div")`
+  position: absolute;
+  z-index: 100;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  justify-content: center;
 `;
 
 const modalRoot = document.getElementById("modal-root");
@@ -86,7 +99,7 @@ class Modal extends React.Component<IModalProps> {
   }
 
   public render() {
-    const { close, children, show, title } = this.props;
+    const { close, children, show, title, loading } = this.props;
 
     return ReactDOM.createPortal(
       <ModalBackdrop show={show}>
@@ -99,6 +112,11 @@ class Modal extends React.Component<IModalProps> {
               </button>
             </ModalHeader>
             {children}
+            {loading && (
+              <ModalLoader className="flex align-center ">
+                <Loader />
+              </ModalLoader>
+            )}
           </ModalContent>
         </ModalWrapper>
       </ModalBackdrop>,
