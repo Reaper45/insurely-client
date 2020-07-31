@@ -50,12 +50,22 @@ const ProductBenefit = styled("div")<{ included?: boolean }>`
   }
 `;
 
-const ProductBenefits: React.FC<IProductBenefitsProps> = ({ benefits }) => {
+const ProductBenefits: React.FC<IProductBenefitsProps & { selected?: boolean }> = ({
+  benefits,
+  selected,
+}) => {
   return (
     <div>
       {benefits.map((benefit) => (
-        <ProductBenefit included key={benefit.id}>
-          {benefit.in_build ? <CheckCircleIcon /> : <XIcon />}
+        <ProductBenefit
+          included={!benefit.is_optional || (benefit.is_optional && selected)}
+          key={benefit.id}
+        >
+          {!benefit.is_optional || (benefit.is_optional && selected) ? (
+            <CheckCircleIcon />
+          ) : (
+            <XIcon />
+          )}
           <div>
             <span>{benefit.name}</span>
             {benefit.limit && <span>{benefit.limit}</span>}

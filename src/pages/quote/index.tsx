@@ -1,6 +1,7 @@
 import React, { useReducer, useEffect } from "react";
 import { RouteComponentProps, Redirect } from "react-router-dom";
 import numeral from "numeral";
+import swal from "sweetalert";
 
 import styled from "emotion";
 
@@ -10,6 +11,7 @@ import ProductView from "components/product/ProductView";
 import ProductBenefits from "components/product/ProductBenefits";
 import ProductOptionalBenefits from "components/product/ProductOptionalBenefits";
 import Accordion from "components/ui/Accordion";
+import Loader from "components/ui/Loader";
 import { IQuotationFormValues } from "pages/form/quotation-form";
 import Checkout from "./Checkout";
 
@@ -18,6 +20,7 @@ import { ReactComponent as NoDataIcon } from "assets/icons/no-data.svg";
 
 const QuotesWrapper = styled("div")`
   margin-top: 1.5rem;
+  height: 100%;
   > .title {
     color: ${(props) => props.theme.colors.accent};
     font-weight: 700;
@@ -112,7 +115,7 @@ const EmptyCatalog = styled("div")`
   align-items: center;
   justify-content: center;
   height: 100%;
-  margin: -2rem auto 0;
+  margin: -4rem auto 0;
   text-align: center;
   max-width: 250px;
   svg {
@@ -136,8 +139,26 @@ const EmptyCatalog = styled("div")`
   }
 `;
 
+const QuoteStateComponent: React.FC<{ loading: boolean }> = ({ loading }) => (
+  <EmptyCatalog className="flex align-center ">
+    {loading ? (
+      <Loader />
+    ) : (
+      <div>
+        <NoDataIcon />
+        <div className="title">Oh no!</div>
+        <p>
+          We've got nothing for you at the moment. We hope you don't mind
+          checking with us later!{" "}
+        </p>
+      </div>
+    )}
+  </EmptyCatalog>
+);
+
 enum QuoteStates {
   initial = "initial",
+  fetching = "fetching",
   paid = "paid",
   paying = "paying",
   emailed = "emailed",
@@ -151,6 +172,11 @@ interface IState {
   quoteState: QuoteStates;
   quotes: QuoteType[];
   payablePremium: number;
+  optionalBenefits: {
+    id: string;
+    premium: string;
+    name: string;
+  }[];
 }
 
 const initialState: IState = {
@@ -159,6 +185,7 @@ const initialState: IState = {
   quoteState: QuoteStates.initial,
   quotes: [],
   payablePremium: 0,
+  optionalBenefits: [],
 };
 
 enum ActionTypes {
@@ -167,6 +194,8 @@ enum ActionTypes {
   quotes = "QUOTES",
   quoteState = "QUOTE_STATE",
   payablePremium = "PAYABLE_PREMIUM",
+  addOptionalBenefits = "ADD_OPTIONAL_BENEFITS",
+  removeOptionalBenefits = "REMOVE_OPTIONAL_BENEFITS",
 }
 
 interface IAction {
@@ -178,18 +207,38 @@ const reducer = (state: IState, action: IAction): IState => {
   switch (action.type) {
     case ActionTypes.activeQuote:
       return { ...state, activeQuote: action.payload };
+
     case ActionTypes.showDetails:
       return { ...state, showDetails: action.payload };
+
     case ActionTypes.quotes:
       return { ...state, quotes: action.payload };
+
     case ActionTypes.quoteState:
       return { ...state, quoteState: action.payload };
+
     case ActionTypes.payablePremium:
       return { ...state, payablePremium: action.payload };
+
+    case ActionTypes.addOptionalBenefits:
+      return {
+        ...state,
+        optionalBenefits: [...state.optionalBenefits, action.payload],
+      };
+
+    case ActionTypes.removeOptionalBenefits:
+      const updatedOptionalBenefits = state.optionalBenefits.filter(
+        (benefit) => benefit.name !== action.payload.name
+      );
+      return { ...state, optionalBenefits: updatedOptionalBenefits };
+
     default:
       return state;
   }
 };
+
+const optionalBenefits = (benefits: BenefitType[]): BenefitType[] =>
+  benefits.filter((benefit) => benefit.is_optional);
 
 const Quotes: React.FC<RouteComponentProps<
   any,
@@ -224,15 +273,108 @@ const Quotes: React.FC<RouteComponentProps<
       type: ActionTypes.quoteState,
       payload: QuoteStates.sending,
     });
-    const result = await fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
+
+    fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
       headers,
       redirect: "follow",
       method: "POST",
-      body: JSON.stringify({ qoute: activeQuote }),
-    });
+      body: JSON.stringify({ quote: activeQuote }),
+    })
+      .then(() => {
+        swal({
+          title: "Email sent!",
+          text: `Quote sent to ${location.state.form.email}`,
+          icon: "success",
+          // @ts-ignore
+          button: "Done",
+        });
+      })
+      .catch(() => {
+        swal({
+          title: "Failed!",
+          text: "Couldn't send email. Retry!",
+          icon: "warning",
+          dangerMode: true,
+        });
+      });
+  };
+
+  const calcBenefitPremium = (benefit: Partial<BenefitType>): number => {
+    let premium = 0;
+    if (benefit?.tariffs) {
+      const tariff = benefit.tariffs[0];
+
+      if (tariff.is_percentage && tariff.value) {
+        premium =
+          (parseInt(tariff.value, 10) / 100) *
+          parseInt(location.state.form.sumInsured, 10);
+      } else {
+        premium = tariff.value ? parseInt(tariff.value, 10) : 0;
+      }
+    }
+    return premium;
+  };
+
+  const calculateUpdateTotalPremium = (
+    quote: QuoteType | null,
+    premium: number
+  ): QuoteType | null => {
+    let updatedActiveQuote = quote;
+    if (state.activeQuote?.premium) {
+      updatedActiveQuote = {
+        ...state.activeQuote,
+        premium: state.activeQuote?.premium + premium,
+      };
+      dispatch({
+        type: ActionTypes.activeQuote,
+        payload: updatedActiveQuote,
+      });
+    }
+
+    return updatedActiveQuote;
+  };
+
+  const handleOptionalBenefitChange: handleBenefitChangeFn = ({
+    benefit,
+    selected,
+  }) => {
+    const premium = calcBenefitPremium(benefit);
+
+    if (selected) {
+      // Add to selected benefit array
+      dispatch({
+        type: ActionTypes.addOptionalBenefits,
+        payload: {
+          id: benefit.id,
+          name: benefit.name,
+          premium,
+        },
+      });
+      const updatedActiveQuote = calculateUpdateTotalPremium(state.activeQuote, premium);
+      dispatch({
+        type: ActionTypes.activeQuote,
+        payload: updatedActiveQuote,
+      });
+    } else {
+      // Remove to selected benefit array
+      dispatch({
+        type: ActionTypes.removeOptionalBenefits,
+        payload: benefit,
+      });
+      const updatedActiveQuote = calculateUpdateTotalPremium(state.activeQuote, - premium);
+
+      dispatch({
+        type: ActionTypes.activeQuote,
+        payload: updatedActiveQuote,
+      });
+    }
   };
 
   useEffect(() => {
+    dispatch({
+      type: ActionTypes.quoteState,
+      payload: QuoteStates.fetching,
+    });
     const { sumInsured, typeOfCover: categoryId } = location.state.form;
 
     fetch(`${process.env.REACT_APP_API_URL}/calculate-quote`, {
@@ -265,95 +407,94 @@ const Quotes: React.FC<RouteComponentProps<
   ) {
     return <Redirect to="/" />;
   }
+  console.log(state.activeQuote?.premium)
 
   return (
     <PageLayout title="Quotations">
       {() => (
         <>
           <Container style={{ height: "100%" }}>
-            {quotes.length === 0 ? (
-              <EmptyCatalog className="flex align-center ">
-                <div>
-                  <NoDataIcon />
-                  <div className="title">Oh no!</div>
-                  <p>
-                    We've got nothing for you at the moment. We hope you don't
-                    mind checking with us later!{" "}
-                  </p>
-                </div>
-              </EmptyCatalog>
-            ) : (
-              <QuotesWrapper>
-                <div className="title">Choose your preferred insurer</div>
-                <ProductsWrapper>
-                  <ProductList>
-                    {quotes.map((q) => (
-                      <ProductView
-                        key={q.product_id}
-                        handleClick={() => handleProductClick(q)}
-                        insurerId={q.insurer.id}
-                        amount={q.premium.toString()}
-                        hasIPF={q.has_ipf}
-                        active={activeQuote?.product_id === q.product_id}
-                      />
-                    ))}
-                  </ProductList>
-                  {activeQuote && (
-                    <ProductSummary showDetails={showDetails}>
-                      <div className="toggle-container">
-                        <button
-                          className="btn btn-toggle btn-primary"
-                          onClick={() => {
-                            dispatch({
-                              type: ActionTypes.showDetails,
-                              payload: !showDetails,
-                            });
-                          }}
-                        >
-                          {showDetails
-                            ? "Hide details"
-                            : "Click to see details"}
-                          <img
-                            className="icon-insurer"
-                            src={`${process.env.REACT_APP_API_URL}/insurer/${activeQuote.insurer?.id}/logo`}
-                            alt={activeQuote.insurer?.name}
-                          />
-                        </button>
-                      </div>
-                      <div className="summary">
-                        <Accordion
-                          items={[
-                            {
-                              key: "cover-summary",
-                              title: "Cover Summary",
-                              render: () => (
-                                <ProductBenefits
-                                  benefits={activeQuote!.benefits}
-                                />
-                              ),
-                            },
-                            {
-                              key: "select-optional-benefits",
-                              title: "Select optional benefits",
-                              render: () => (
-                                <ProductOptionalBenefits
-                                  benefits={activeQuote.optional_benefits}
-                                />
-                              ),
-                            },
-                          ]}
+            <QuotesWrapper>
+              {state.quoteState === QuoteStates.fetching ||
+              quotes.length === 0 ? (
+                <QuoteStateComponent
+                  loading={state.quoteState === QuoteStates.fetching}
+                />
+              ) : (
+                <>
+                  <div className="title">Choose your preferred insurer</div>
+                  <ProductsWrapper>
+                    <ProductList>
+                      {quotes.map((q) => (
+                        <ProductView
+                          key={q.product_id}
+                          handleClick={() => handleProductClick(q)}
+                          quote={q}
+                          activeQuote={activeQuote}
                         />
-                      </div>
-                      <div className="floating-amount">
-                        <div className="amount">
-                          Ksh. {numeral(activeQuote.premium).format("0,0")}
+                      ))}
+                    </ProductList>
+                    {activeQuote && (
+                      <ProductSummary showDetails={showDetails}>
+                        <div className="toggle-container">
+                          <button
+                            className="btn btn-toggle btn-primary"
+                            onClick={() => {
+                              dispatch({
+                                type: ActionTypes.showDetails,
+                                payload: !showDetails,
+                              });
+                            }}
+                          >
+                            {showDetails
+                              ? "Hide details"
+                              : "Click to see details"}
+                            <img
+                              className="icon-insurer"
+                              src={`${process.env.REACT_APP_API_URL}/insurer/${activeQuote.insurer?.id}/logo`}
+                              alt={activeQuote.insurer?.name}
+                            />
+                          </button>
                         </div>
-                      </div>
-                    </ProductSummary>
-                  )}
-                </ProductsWrapper>
-              </QuotesWrapper>
-            )}
+                        <div className="summary">
+                          <Accordion
+                            items={[
+                              {
+                                key: "cover-summary",
+                                title: "Cover Summary",
+                                render: () => (
+                                  <ProductBenefits
+                                    benefits={activeQuote!.benefits}
+                                  />
+                                ),
+                              },
+                              {
+                                key: "select-optional-benefits",
+                                title: "Select optional benefits",
+                                render: () => (
+                                  <ProductOptionalBenefits
+                                    handleChange={handleOptionalBenefitChange}
+                                    benefits={[
+                                      ...activeQuote.optional_benefits,
+                                      ...optionalBenefits(activeQuote.benefits),
+                                    ]}
+                                  />
+                                ),
+                              },
+                            ]}
+                          />
+                        </div>
+                        <div className="floating-amount">
+                          <div className="amount">
+                            Ksh. {numeral(activeQuote.premium).format("0,0")}
+                          </div>
+                        </div>
+                      </ProductSummary>
+                    )}
+                  </ProductsWrapper>
+                </>
+              )}
+            </QuotesWrapper>
           </Container>
           <PageFooter>
             <Container className="flex justify-space-between">

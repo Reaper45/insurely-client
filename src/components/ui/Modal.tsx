@@ -8,10 +8,12 @@ import { ReactComponent as CloseIcon } from "assets/icons/icon-x.svg";
 
 export type CloseFn = () => void;
 
-interface IModalProps {
-  show: boolean;
-  close?: CloseFn;
-  title: string;
+declare global {
+  export interface IModalProps {
+    show: boolean;
+    close?: CloseFn;
+    title: string;
+  }
 }
 
 const ModalBackdrop = styled("div")<{ show: boolean }>`

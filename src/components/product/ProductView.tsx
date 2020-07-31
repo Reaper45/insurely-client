@@ -6,17 +6,17 @@ import CheckboxInput from "components/ui/CheckboxInput";
 
 import { ReactComponent as CheveronRightIcon } from "assets/icons/icon-cheveron-right.svg";
 import { ReactComponent as CheckCircleIcon } from "assets/icons/icon-check-circle.svg";
-import { ReactComponent as ExclamationIcon } from "assets/icons/icon-exclamation.svg";
 
 interface IProductViewProps {
   handleClick: () => void;
-  insurerId?: string;
-  amount: string;
-  hasIPF?: boolean;
-  active?: boolean;
+  quote: QuoteType;
+  activeQuote: QuoteType | null;
 }
 
-const ProductViewWrapper = styled("div")<Partial<IProductViewProps>>`
+const ProductViewWrapper = styled("div")<{
+  active?: boolean;
+  hasIPF?: boolean;
+}>`
   border: solid 2px
     ${(props) =>
       props.active ? props.theme.colors.primary : props.theme.colors.light};
@@ -52,6 +52,15 @@ const ProductViewWrapper = styled("div")<Partial<IProductViewProps>>`
   .details {
     flex-grow: 1;
     margin-left: 1rem;
+    .name {
+      b {
+        font-size: 12px;
+        @media (min-width: 768px) {
+          font-size: 1rem;
+        }
+      }
+    }
+
     div {
       color: ${(props) => props.theme.colors.dark};
       margin-bottom: 0.5rem;
@@ -90,25 +99,47 @@ const ProductViewWrapper = styled("div")<Partial<IProductViewProps>>`
 
 const ProductView: React.FC<IProductViewProps> = ({
   handleClick,
-  insurerId,
-  active,
-  amount,
-  hasIPF,
+  // insurerId,
+  // amount,
+  // hasIPF,
+  // name,
+  quote,
+  activeQuote,
 }) => {
   return (
-    <ProductViewWrapper onClick={handleClick} active={active} hasIPF={hasIPF}>
-      <CheckboxInput checked={active} />
+    <ProductViewWrapper
+      onClick={handleClick}
+      active={activeQuote?.product_id === quote.product_id}
+      hasIPF={quote.has_ipf}
+    >
+      <CheckboxInput
+        checked={activeQuote?.product_id === quote.product_id}
+        onChange={console.log}
+      />
       <div className="logo">
         <img
-          src={`${process.env.REACT_APP_API_URL}/insurer/${insurerId}/logo`}
+          src={`${process.env.REACT_APP_API_URL}/insurer/${quote.insurer.id}/logo`}
           alt=""
         />
       </div>
       <div className="details">
-        <div>Ksh.&nbsp; {numeral(amount).format("0,0")}</div>
+        <div className="name">
+          <b>{quote.name}</b>
+        </div>
+        <div>
+          Ksh.&nbsp;{" "}
+          {numeral(
+            activeQuote?.product_id === quote.product_id
+              ? activeQuote!.premium
+              : quote.premium
+          ).format("0,0")}
+        </div>
         <small>
-          {hasIPF ? <CheckCircleIcon /> : <ExclamationIcon />}
-          {hasIPF ? "Financing available" : "Financing unavailable"}
+          {quote.has_ipf && (
+            <>
+              <CheckCircleIcon /> Financing available
+            </>
+          )}
         </small>
       </div>
       <div>

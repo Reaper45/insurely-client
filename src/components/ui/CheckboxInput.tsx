@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from "react";
+import React, { InputHTMLAttributes, ChangeEvent } from "react";
 
 import styled from "emotion";
 
@@ -34,13 +34,15 @@ const CheckboxFieldWrapper = styled("label")<{
 
 interface ICheckboxInputProps extends InputHTMLAttributes<HTMLInputElement> {}
 
-const CheckboxInput: React.FC<ICheckboxInputProps & { label?: string }> = ({
-  label,
-  ...rest
-}) => {
+const CheckboxInput: React.FC<
+  ICheckboxInputProps & {
+    label?: string;
+    // handleChange?: (e: ChangeEvent<HTMLInputElement>) => void;
+  }
+> = ({ label, ...rest }) => {
   return (
     <CheckboxFieldWrapper htmlFor={rest.name} checked={rest.checked}>
-      <input type="checkbox" id={rest.name} {...rest} onChange={console.log} />
+      <input type="checkbox" id={rest.name} checked={rest.checked} {...rest} />
       {label && <span className="checkbox-label">{label}</span>}
     </CheckboxFieldWrapper>
   );

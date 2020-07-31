@@ -57,10 +57,12 @@ declare global {
     id: string;
     name: string;
     product?: Partial<ProductType>;
-    tariffs?: Partial<TariffType>;
+    tariffs?: Partial<TariffType>[];
     // charges?: Partial<ChargeType>;
-    in_build?: boolean;
+    is_optional?: boolean;
     limit?: string;
+    description?: string;
+    is_adjustable?: boolean;
   };
 
   export type ProductType = {

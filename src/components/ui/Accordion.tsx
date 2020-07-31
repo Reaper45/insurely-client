@@ -28,7 +28,7 @@ const AccordionItem = styled("div")<{ active: boolean }>`
   }
   .content {
     padding: ${(props) => (props.active ? "0 0 1rem" : "0")};
-    max-height: ${(props) => (props.active ? "400px" : "0px")};
+    max-height: ${(props) => (props.active ? "500px" : "0px")};
     overflow: auto;
     opacity: ${(props) => (props.active ? "1" : "0")};
   }
@@ -46,7 +46,7 @@ const Accordion: React.FC<{
   const [active, setActive] = useState<null | string>(null);
   useEffect(() => {
     setActive(items[0].key);
-  }, [items]);
+  }, []);
   return (
     <>
       {items.map((item) => (

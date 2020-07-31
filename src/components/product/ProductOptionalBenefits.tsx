@@ -5,7 +5,7 @@ import styled from "emotion";
 import CheckboxInput from "components/ui/CheckboxInput";
 import { FieldWrapper, Input } from "components/ui";
 
-const OptionalBenefit = styled("div")`
+const OptionalBenefitWrapper = styled("div")`
   margin-bottom: 0.25rem;
   .checkbox-label {
     font-size: 15px;
@@ -44,31 +44,62 @@ const BenefitInput = styled(Input)`
   }
 `;
 
-interface IProductOptionalBenefitsProps {
-  benefits: BenefitType[];
+declare global {
+  type handleBenefitChangeFn = (props: { benefit: Partial<BenefitType>, selected: boolean }) => void;
 }
 
-const ProductOptionalBenefits: React.FC<IProductOptionalBenefitsProps> = ({
-  benefits,
-}) => {
+interface IProductOptionalBenefitsProps {
+  benefits: BenefitType[];
+  handleChange: handleBenefitChangeFn;
+}
+
+const OptionalBenefit: React.FC<{
+  handleChange: handleBenefitChangeFn;
+  benefit: Partial<BenefitType>;
+}> = ({ benefit, handleChange }) => {
+  const tariff = benefit!.tariffs ? benefit!.tariffs[0] : null;
   return (
-    <div>
-      <OptionalBenefit>
-        <CheckboxInput label="Road Rescue" />
-        <div className="description">Road rescue services from AA</div>
-      </OptionalBenefit>
-      <OptionalBenefit>
-        <CheckboxInput label="Entertainment unit" />
+    <OptionalBenefitWrapper>
+      <CheckboxInput
+        label={benefit!.name}
+        onChange={(e) => {
+          handleChange({ benefit, selected: e.currentTarget!.checked });
+        }}
+      />
+      {benefit!.description && (
+        <div className="description">{benefit!.description}</div>
+      )}
+      {benefit!.is_adjustable && (
         <div className="form">
           <FieldWrapper style={{ marginBottom: "0px" }}>
-            <BenefitInput name="sumInsured" placeholder="Estimated value" />
+            <BenefitInput
+              name="sumInsured"
+              placeholder="Estimated value"
+              onChange={console.log}
+            />
             <span className="label">KSH</span>
           </FieldWrapper>
         </div>
-      </OptionalBenefit>
-      <OptionalBenefit>
-        <CheckboxInput label="Excess protector" />
-      </OptionalBenefit>
+      )}
+    </OptionalBenefitWrapper>
+  );
+};
+
+const ProductOptionalBenefits: React.FC<IProductOptionalBenefitsProps> = ({
+  benefits,
+  handleChange,
+}) => {
+  return (
+    <div>
+      {benefits.map((benefit) => {
+        return (
+          <OptionalBenefit
+            key={benefit.id}
+            benefit={benefit}
+            handleChange={handleChange}
+          />
+        );
+      })}
     </div>
   );
 };
