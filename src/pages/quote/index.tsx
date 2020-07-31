@@ -55,7 +55,7 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   .toggle-container {
     position: absolute;
     left: 50%;
-    top: -1rem;
+    top: ${(props) => (props.showDetails ? "-1rem" : "0")};
     .btn-toggle {
       color: ${(props) => props.theme.colors.white};
       font-size: 14px;
@@ -78,11 +78,12 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   .floating-amount {
     position: absolute;
     left: 50%;
-    bottom: 22%;
+    bottom: 18%;
     .amount {
       position: relative;
       left: -50%;
-      background: ${(props) => props.theme.colors.green};
+      background: ${(props) => props.theme.colors.dark};
+      border: solid 1px ${(props) => props.theme.colors.white};
       padding: 0.75rem 1.5rem;
       border-radius: 2rem;
       color: ${(props) => props.theme.colors.white};

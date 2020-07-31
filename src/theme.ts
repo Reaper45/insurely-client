@@ -20,7 +20,7 @@ export const theme: ITheme = {
     light: "#E2E8F0",
     secondary: "#718096",
     accent: "#1A202C",
-    // 
+    //
     gray: "#A0AEC0", // placeholders
     white: "#FFFFFF",
     // Status colors
