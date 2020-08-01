@@ -1,14 +1,16 @@
 import React, { useReducer, useEffect } from "react";
 import numeral from "numeral";
+import { Redirect } from "react-router-dom";
 
 import styled from "emotion";
 import { checkout as pay, checkTransaction } from "lib/api";
 import Modal from "components/ui/Modal";
-import { Input, FieldWrapper } from "components/ui";
+import { Input, FieldWrapper, Message } from "components/ui";
 
 import { ReactComponent as CurrencyIcon } from "assets/icons/icon-currency-dollar.svg";
 import { ReactComponent as CheckCircleIcon } from "assets/icons/icon-check-circle.svg";
 import { ReactComponent as CheveronDownIcon } from "assets/icons/icon-cheveron-down.svg";
+import { ReactComponent as NotificationIcon } from "assets/icons/icon-notification.svg";
 
 const CheckoutModalContent = styled("div")`
   border-radius: 5px;
@@ -125,7 +127,6 @@ interface IState {
   manualCheckout: boolean;
   payment: PaymentStates;
   checkoutId: string;
-  // pollCount: number;
 }
 
 const initialState: IState = {
@@ -133,7 +134,6 @@ const initialState: IState = {
   manualCheckout: false,
   payment: PaymentStates.pending,
   checkoutId: "",
-  // pollCount: 0,
 };
 
 enum ActionTypes {
@@ -141,7 +141,6 @@ enum ActionTypes {
   manualCheckout = "MANUAL_CHECKOUT",
   payment = "PAYMENT_STATE",
   checkoutId = "CHECKOUT_ID",
-  // pollCount = "ADD_POLL_COUNT",
 }
 
 interface IAction {
@@ -159,9 +158,6 @@ const reducer = (state: IState, action: IAction): IState => {
       return { ...state, payment: action.payload };
     case ActionTypes.checkoutId:
       return { ...state, checkoutId: action.payload };
-    // case ActionTypes.pollCount:
-    //   const pollCount = state.pollCount + 1;
-    //   return { ...state, pollCount };
     default:
       return state;
   }
@@ -195,8 +191,7 @@ const Checkout: React.FC<{
       amount: props.amount,
       phoneNumber: state.phoneNumber,
     });
-    
-    console.log({ data });
+
     if (data) {
       dispatch({
         type: ActionTypes.payment,
@@ -206,42 +201,53 @@ const Checkout: React.FC<{
         type: ActionTypes.checkoutId,
         payload: data.MPESA_RESPONSE.CheckoutRequestID,
       });
-      // @ts-ignore
-      confirmPayment(data.MPESA_RESPONSE.CheckoutRequestID);
+      confirmPayment();
     }
   };
 
-  const confirmPayment = (checkoutId: string) => {
+  const confirmPayment = () => {
     dispatch({
       type: ActionTypes.payment,
       payload: PaymentStates.confirming,
     });
 
     let pollCount = 0;
+    let stateHolder = state.payment;
     const refreshId = setInterval(async () => {
       pollCount += 1;
-      if (pollCount === 10) {
+      if (
+        pollCount === 12 ||
+        stateHolder === PaymentStates.confirmed ||
+        stateHolder === PaymentStates.failed
+      ) {
         clearInterval(refreshId);
       }
-      const data = await checkTransaction({
-        checkoutId,
+      const { data } = await checkTransaction({
+        amount: props.amount,
         phoneNumber: state.phoneNumber,
       });
-      console.log({ data });
-      if (data && data.success) {
+
+      if (data.received) {
+        stateHolder = PaymentStates.confirmed;
         dispatch({
           type: ActionTypes.payment,
           payload: PaymentStates.confirmed,
         });
       } else {
+        stateHolder = PaymentStates.failed;
+
         dispatch({
           type: ActionTypes.payment,
           payload: PaymentStates.failed,
         });
       }
-    }, 6000);
+    }, 5000);
   };
-  
+
+  if (state.payment === PaymentStates.confirmed) {
+    return <Redirect to="/quotations/complete" />;
+  }
+
   return (
     <Modal
       title="Checkout"
@@ -253,6 +259,26 @@ const Checkout: React.FC<{
       }
     >
       <CheckoutModalContent>
+        {(state.payment === PaymentStates.success ||
+          state.payment === PaymentStates.failed) && (
+          <Message
+            className={
+              state.payment === PaymentStates.success ? "success" : "error"
+            }
+          >
+            <div>
+              {state.payment === PaymentStates.success
+                ? "Success. Payment notification sent."
+                : "Failed. Complete manually!"}
+            </div>
+            {state.payment === PaymentStates.success ? (
+              <CheckCircleIcon />
+            ) : (
+              <NotificationIcon />
+            )}
+          </Message>
+        )}
+
         <FieldWrapper style={{ marginBottom: "1.5rem" }}>
           <Input
             name="phoneNumber"
@@ -270,7 +296,7 @@ const Checkout: React.FC<{
             <div className="flex justify-center align-center">
               <img
                 src={require("../../assets/img/saf.png")}
-                alt="Safaricom ogo"
+                alt="Safaricom logo"
               />
               <CheckCircleIcon />
             </div>

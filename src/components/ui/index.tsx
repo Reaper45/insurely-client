@@ -88,6 +88,41 @@ const FieldError = styled("div")`
   margin-top: 4px;
 `;
 
+const Message = styled("div")`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  &.error {
+    background: rgba(229, 62, 62, 0.15);
+    border-left: solid 2px ${(props) => props.theme.colors.red};
+    div {
+      color: ${(props) => props.theme.colors.red};
+    }
+    svg {
+      fill: ${(props) => props.theme.colors.red};
+      height: 20px;
+    }
+  }
+  &.success {
+    background: rgba(56, 161, 105, 0.15);
+    border-left: solid 2px ${(props) => props.theme.colors.green};
+    div {
+      color: ${(props) => props.theme.colors.green};
+    }
+    svg {
+      fill: ${(props) => props.theme.colors.green};
+    }
+  }
+`;
+
+const FieldLoader = styled("div")`
+  width: 100%;
+  height: 100%;
+  justify-content: center;
+`;
+
 export {
   baseInputStyles,
   Container,
@@ -96,4 +131,6 @@ export {
   PageFooter,
   FieldWrapper,
   FieldError,
+  Message,
+  FieldLoader,
 };

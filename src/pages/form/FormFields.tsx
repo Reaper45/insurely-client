@@ -1,7 +1,7 @@
 import React from "react";
 import { FieldProps, useField } from "formik";
 
-import { Input, FieldWrapper, FieldError } from "components/ui";
+import { Input, FieldWrapper, FieldError, FieldLoader } from "components/ui";
 import Radio from "components/ui/RadioButton";
 import SelectField from "components/ui/SelectField";
 import useClasses from "components/hooks/useClasses";
@@ -34,9 +34,9 @@ export const ClassesFormField: React.FC<IFormField> = ({ name }) => {
   return (
     <FieldWrapper>
       {loading ? (
-        <div>
+        <FieldLoader className="flex align-items">
           <Loader />
-        </div>
+        </FieldLoader>
       ) : (
         options!.map((opt) => <Radio name={name} {...opt} />)
       )}
@@ -56,9 +56,9 @@ export const CategoriesFormField: React.FC<IFormField> = ({
   return (
     <FieldWrapper>
       {loading ? (
-        <div>
+        <FieldLoader className="flex align-items">
           <Loader />
-        </div>
+        </FieldLoader>
       ) : (
         options!.map((opt) => <Radio name={name} {...opt} />)
       )}

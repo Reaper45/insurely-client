@@ -3,8 +3,9 @@ import { Formik, Form, FormikHelpers } from "formik";
 import { RouteChildrenProps } from "react-router-dom";
 
 import styled from "emotion";
-import { phoneNumber as nomalizePhoneNumber } from "lib/normalizer";
-import { Container, PageFooter, Input, FieldWrapper } from "components/ui";
+import { sendOtp, verifyCode } from "lib/api";
+
+import { Container, PageFooter, Input, FieldWrapper, Message } from "components/ui";
 import PageLayout from "components/PageLayout";
 import Modal from "components/ui/Modal";
 import FormSection from "./FormSection";
@@ -28,22 +29,6 @@ const FormContainer = styled("div")`
 `;
 
 const VerifyModalContent = styled("div")`
-  .error {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 1rem;
-    background: rgba(229, 62, 62, 0.15);
-    margin-bottom: 1rem;
-    border-left: solid 2px ${(props) => props.theme.colors.red};
-    div {
-      color: ${(props) => props.theme.colors.red};
-    }
-    svg {
-      fill: ${(props) => props.theme.colors.red};
-      height: 20px;
-    }
-  }
   .description {
     margin-bottom: 1.5rem;
     p {
@@ -146,25 +131,13 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const {
     phoneNumberState,
-    phoneNumber,
     showOTPModal,
     stepNumber,
-    otp,
   } = state;
 
   const step = quotationForm[stepNumber - 1];
   const isLastStep = stepNumber === quotationForm.length;
   const hasPhoneNumber = step.form.fields.find((f) => f.name === "phoneNumber");
-
-  // Request Details
-  const headers = new Headers();
-  headers.append("Content-Type", "application/json");
-
-  const options: RequestInit = {
-    method: "POST",
-    headers,
-    redirect: "follow",
-  };
 
   const next = () => {
     dispatch({ type: ActionTypes.step, payload: stepNumber + 1 });
@@ -178,22 +151,18 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       });
   };
 
-  const setOTP = async (payload: string) => {
+  const setOTP = async (phoneNumber: string, name: string) => {
     dispatch({
       type: ActionTypes.phoneNumber,
-      payload,
+      payload: phoneNumber,
     });
     dispatch({
       type: ActionTypes.phoneNumberState,
       payload: PhoneNumberState.sending,
     });
 
-    const nomalizedPhoneNumber = nomalizePhoneNumber(payload);
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/send-otp`, {
-      ...options,
-      body: JSON.stringify({ phoneNumber: nomalizedPhoneNumber }),
-    });
-    if (res) {
+    const data = await sendOtp({ phoneNumber, name });
+    if (data) {
       dispatch({
         type: ActionTypes.phoneNumberState,
         payload: PhoneNumberState.sent,
@@ -206,7 +175,6 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
     bag: FormikHelpers<Partial<IQuotationFormValues>>
   ) => {
     if (isLastStep) {
-      console.log({ values });
       history.push("/quotations", {
         form: values,
       });
@@ -214,12 +182,12 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       hasPhoneNumber &&
       phoneNumberState !== PhoneNumberState.verified
     ) {
-      if (values.phoneNumber) await setOTP(values.phoneNumber);
-
       dispatch({
         type: ActionTypes.modal,
         payload: true,
       });
+      if (values.phoneNumber && values.firstName)
+        await setOTP(values.phoneNumber, values.firstName);
     } else {
       bag.setTouched({});
       next();
@@ -232,43 +200,29 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
     });
   };
 
-  const verifyPhoneNumber = () => {
+  const verifyPhoneNumber = async () => {
     dispatch({
       type: ActionTypes.phoneNumberState,
       payload: PhoneNumberState.verifying,
     });
 
-    const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
-    fetch(`${process.env.REACT_APP_API_URL}/verify-otp`, {
-      ...options,
-      body: JSON.stringify({ code: otp, phoneNumber: nomalizedPhoneNumber }),
-    })
-      .then(async (res) => {
-        const { data } = await res.json();
-        if (data.verified) {
-          dispatch({
-            type: ActionTypes.phoneNumberState,
-            payload: PhoneNumberState.verified,
-          });
-          dispatch({
-            type: ActionTypes.modal,
-            payload: false,
-          });
-          next();
-        } else {
-          dispatch({
-            type: ActionTypes.phoneNumberState,
-            payload: PhoneNumberState.failed,
-          });
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        dispatch({
-          type: ActionTypes.phoneNumberState,
-          payload: PhoneNumberState.failed,
-        });
+    const { data } = await verifyCode({ code: state.otp, phoneNumber: state.phoneNumber});
+    if (data.verified) {
+      dispatch({
+        type: ActionTypes.phoneNumberState,
+        payload: PhoneNumberState.verified,
       });
+      dispatch({
+        type: ActionTypes.modal,
+        payload: false,
+      });
+      next();
+    } else {
+      dispatch({
+        type: ActionTypes.phoneNumberState,
+        payload: PhoneNumberState.failed,
+      });
+    }
   };
 
   return (
@@ -327,13 +281,17 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                     payload: false,
                   });
                 }}
+                loading={
+                  state.phoneNumberState === PhoneNumberState.sending ||
+                  state.phoneNumberState === PhoneNumberState.verifying
+                }
               >
                 <VerifyModalContent>
                   {phoneNumberState === PhoneNumberState.failed && (
-                    <div className="error">
+                    <Message className="error">
                       <div>Verification failed</div>
                       <NotificationIcon />
-                    </div>
+                    </Message>
                   )}
                   <div className="description">
                     <p>Enter the code you receiver to </p>
@@ -344,7 +302,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                       name=""
                       placeholder="OTP Code"
                       type=""
-                      value={otp}
+                      value={state.otp}
                       onChange={(e) => {
                         dispatch({
                           type: ActionTypes.otp,
@@ -366,7 +324,8 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                   <div>
                     <button
                       onClick={() => {
-                        if (values.phoneNumber) setOTP(values.phoneNumber);
+                        if (values.phoneNumber && values.firstName)
+                          setOTP(values.phoneNumber, values.firstName);
                       }}
                       className="btn btn-primary link icon-right"
                       type="button"

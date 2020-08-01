@@ -4,6 +4,7 @@ import numeral from "numeral";
 import swal from "sweetalert";
 
 import styled from "emotion";
+import { getQuotes, email } from "lib/api";
 
 import PageLayout from "components/PageLayout";
 import { PageFooter, Container } from "components/ui";
@@ -242,12 +243,6 @@ const Quotes: React.FC<RouteComponentProps<
   { form: IQuotationFormValues }
 >> = ({ location }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {
-    activeQuote,
-    showDetails,
-    quotes,
-    quoteState,
-  } = state;
 
   const handleProductClick = (quote: QuoteType) => {
     dispatch({
@@ -256,21 +251,13 @@ const Quotes: React.FC<RouteComponentProps<
     });
   };
 
-  const headers = new Headers();
-  headers.append("Content-Type", "application/json");
-
   const sendEmail = async () => {
     dispatch({
       type: ActionTypes.quoteState,
       payload: QuoteStates.sending,
     });
 
-    fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
-      headers,
-      redirect: "follow",
-      method: "POST",
-      body: JSON.stringify({ quote: activeQuote }),
-    })
+    email({ quote: state.activeQuote })
       .then(() => {
         swal({
           title: "Email sent!",
@@ -279,6 +266,10 @@ const Quotes: React.FC<RouteComponentProps<
           // @ts-ignore
           button: "Done",
         });
+        dispatch({
+          type: ActionTypes.quoteState,
+          payload: QuoteStates.emailed,
+        });
       })
       .catch(() => {
         swal({
@@ -286,6 +277,10 @@ const Quotes: React.FC<RouteComponentProps<
           text: "Couldn't send email. Retry!",
           icon: "warning",
           dangerMode: true,
+        });
+        dispatch({
+          type: ActionTypes.quoteState,
+          payload: QuoteStates.emailed,
         });
       });
   };
@@ -341,7 +336,10 @@ const Quotes: React.FC<RouteComponentProps<
           premium,
         },
       });
-      const updatedActiveQuote = calculateUpdateTotalPremium(state.activeQuote, premium);
+      const updatedActiveQuote = calculateUpdateTotalPremium(
+        state.activeQuote,
+        premium
+      );
       dispatch({
         type: ActionTypes.activeQuote,
         payload: updatedActiveQuote,
@@ -352,7 +350,10 @@ const Quotes: React.FC<RouteComponentProps<
         type: ActionTypes.removeOptionalBenefits,
         payload: benefit,
       });
-      const updatedActiveQuote = calculateUpdateTotalPremium(state.activeQuote, - premium);
+      const updatedActiveQuote = calculateUpdateTotalPremium(
+        state.activeQuote,
+        -premium
+      );
 
       dispatch({
         type: ActionTypes.activeQuote,
@@ -362,34 +363,28 @@ const Quotes: React.FC<RouteComponentProps<
   };
 
   useEffect(() => {
-    dispatch({
-      type: ActionTypes.quoteState,
-      payload: QuoteStates.fetching,
-    });
-    const { sumInsured, typeOfCover: categoryId } = location.state.form;
+    if (location.state && location.state.form) {
+      dispatch({
+        type: ActionTypes.quoteState,
+        payload: QuoteStates.fetching,
+      });
+      const { sumInsured, typeOfCover } = location.state.form;
 
-    fetch(`${process.env.REACT_APP_API_URL}/calculate-quote`, {
-      method: "POST",
-      headers,
-      redirect: "follow",
-      body: JSON.stringify({ sumInsured, categoryId }),
-    })
-      .then(async (results) => {
-        const { data } = await results.json();
+      (async () => {
+        const { data } = await getQuotes({
+          sumInsured,
+          categoryId: typeOfCover,
+        });
         dispatch({
           type: ActionTypes.quotes,
           payload: data.quotes,
         });
-      })
-      .catch((err) => {
-        console.error(err);
-      })
-      .finally(() => {
         dispatch({
           type: ActionTypes.quoteState,
           payload: QuoteStates.initial,
         });
-      });
+      })();
+    }
   }, []);
 
   if (
@@ -406,7 +401,7 @@ const Quotes: React.FC<RouteComponentProps<
           <Container style={{ height: "100%" }}>
             <QuotesWrapper>
               {state.quoteState === QuoteStates.fetching ||
-              quotes.length === 0 ? (
+              state.quotes.length === 0 ? (
                 <QuoteStateComponent
                   loading={state.quoteState === QuoteStates.fetching}
                 />
@@ -415,34 +410,34 @@ const Quotes: React.FC<RouteComponentProps<
                   <div className="title">Choose your preferred insurer</div>
                   <ProductsWrapper>
                     <ProductList>
-                      {quotes.map((q) => (
+                      {state.quotes.map((q) => (
                         <ProductView
                           key={q.product_id}
                           handleClick={() => handleProductClick(q)}
                           quote={q}
-                          activeQuote={activeQuote}
+                          activeQuote={state.activeQuote}
                         />
                       ))}
                     </ProductList>
-                    {activeQuote && (
-                      <ProductSummary showDetails={showDetails}>
+                    {state.activeQuote && (
+                      <ProductSummary showDetails={state.showDetails}>
                         <div className="toggle-container">
                           <button
                             className="btn btn-toggle btn-primary"
                             onClick={() => {
                               dispatch({
                                 type: ActionTypes.showDetails,
-                                payload: !showDetails,
+                                payload: !state.showDetails,
                               });
                             }}
                           >
-                            {showDetails
+                            {state.showDetails
                               ? "Hide details"
                               : "Click to see details"}
                             <img
                               className="icon-insurer"
-                              src={`${process.env.REACT_APP_API_URL}/insurer/${activeQuote.insurer?.id}/logo`}
-                              alt={activeQuote.insurer?.name}
+                              src={`${process.env.REACT_APP_API_URL}/insurer/${state.activeQuote.insurer?.id}/logo`}
+                              alt={state.activeQuote.insurer?.name}
                             />
                           </button>
                         </div>
@@ -454,7 +449,7 @@ const Quotes: React.FC<RouteComponentProps<
                                 title: "Cover Summary",
                                 render: () => (
                                   <ProductBenefits
-                                    benefits={activeQuote!.benefits}
+                                    benefits={state.activeQuote!.benefits}
                                   />
                                 ),
                               },
@@ -465,8 +460,10 @@ const Quotes: React.FC<RouteComponentProps<
                                   <ProductOptionalBenefits
                                     handleChange={handleOptionalBenefitChange}
                                     benefits={[
-                                      ...activeQuote.optional_benefits,
-                                      ...optionalBenefits(activeQuote.benefits),
+                                      ...state.activeQuote!.optional_benefits,
+                                      ...optionalBenefits(
+                                        state.activeQuote!.benefits
+                                      ),
                                     ]}
                                   />
                                 ),
@@ -476,7 +473,10 @@ const Quotes: React.FC<RouteComponentProps<
                         </div>
                         <div className="floating-amount">
                           <div className="amount">
-                            Ksh. {numeral(activeQuote.premium).format("0,0.00")}
+                            Ksh.{" "}
+                            {numeral(state.activeQuote.premium).format(
+                              "0,0.00"
+                            )}
                           </div>
                         </div>
                       </ProductSummary>
@@ -501,8 +501,16 @@ const Quotes: React.FC<RouteComponentProps<
                   onClick={sendEmail}
                   className="btn btn-light link icon-left mr-2"
                   type="button"
+                  disabled={
+                    !state.activeQuote ||
+                    state.quoteState === QuoteStates.emailed
+                  }
                 >
-                  Email me the quotation
+                  {state.quoteState === QuoteStates.sending
+                    ? "Sending..."
+                    : state.quoteState === QuoteStates.emailed
+                    ? "Email sent"
+                    : "Email me the quotation"}
                 </button>
                 <button
                   onClick={() =>
@@ -521,7 +529,7 @@ const Quotes: React.FC<RouteComponentProps<
             </Container>
           </PageFooter>
           <Checkout
-            show={quoteState === QuoteStates.paying}
+            show={state.quoteState === QuoteStates.paying}
             close={() => {
               dispatch({
                 type: ActionTypes.quoteState,
@@ -529,7 +537,7 @@ const Quotes: React.FC<RouteComponentProps<
               });
             }}
             phoneNumber={location.state.form.phoneNumber}
-            amount={numeral(activeQuote?.premium).format("0,0")}
+            amount={numeral(state.activeQuote?.premium).format("0,0")}
           />
         </>
       )}
