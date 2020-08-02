@@ -1,7 +1,11 @@
 {
-  "name": "insurely-client",
-  "version": "0.1.0",
+  "name": "insurely.cc",
+  "version": "1.0.0",
   "private": true,
+  "author": {
+    "name": "Joram Mwashighadi",
+    "email": "jomwashighadi@gmail.com"
+  },
   "dependencies": {
     "@emotion/core": "^10.0.28",
     "@emotion/styled": "^10.0.27",

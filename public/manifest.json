@@ -1,6 +1,11 @@
 {
   "short_name": "Insurely",
-  "name": "Get Insured in Minutes",
+  "name": "Insurely",
+  "author": {
+    "name": "Joram Mwashighadi",
+    "email": "jomwashighadi@gmail.com"
+  },
+  "version": "1.0.0",
   "icons": [
     {
       "src": "favicon.ico",
