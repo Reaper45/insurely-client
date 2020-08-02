@@ -14,10 +14,10 @@ const appApiUrl = process.env.REACT_APP_API_URL;
 const callbackUrl = process.env.REACT_APP_MPESA_CALLBACK;
 
 //
-const email = async ({ quote }: { quote: QuoteType | null }) => {
+const email = async ({ quote, to }: { quote: QuoteType | null; to: string }) => {
   const response = await fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
     ...options,
-    body: JSON.stringify({ quote }),
+    body: JSON.stringify({ quote, to }),
   });
   const data = await response.json();
 

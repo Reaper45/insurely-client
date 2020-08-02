@@ -257,7 +257,7 @@ const Quotes: React.FC<RouteComponentProps<
       payload: QuoteStates.sending,
     });
 
-    email({ quote: state.activeQuote })
+    email({ quote: state.activeQuote, to: location.state.form.email })
       .then(() => {
         swal({
           title: "Email sent!",
