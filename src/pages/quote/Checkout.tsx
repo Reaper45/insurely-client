@@ -252,7 +252,6 @@ const Checkout: React.FC<{
 
   const isValidPhoneNumber = isValidSafaricomNumber(state.phoneNumber);
 
-  console.log({ isValidPhoneNumber });
   return (
     <Modal
       title="Checkout"
