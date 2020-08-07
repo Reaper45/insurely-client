@@ -267,13 +267,19 @@ const Checkout: React.FC<{
           state.payment === PaymentStates.failed) && (
           <Message
             className={
-              state.payment === PaymentStates.success ? "success" : "error"
+              state.payment === PaymentStates.success
+                ? "success"
+                : state.payment === PaymentStates.failed
+                ? "error"
+                : ""
             }
           >
             <div>
               {state.payment === PaymentStates.success
                 ? "Success. Payment notification sent."
-                : "Failed. Complete manually!"}
+                : state.payment === PaymentStates.failed
+                ? "Failed. Complete manually!"
+                : ""}
             </div>
             {state.payment === PaymentStates.success ? (
               <CheckCircleIcon />
@@ -307,9 +313,7 @@ const Checkout: React.FC<{
             </div>
           </PhoneNumberLabel>
           {!isValidPhoneNumber && (
-            <FieldError>
-              Enter a correct Safaricom number.
-            </FieldError>
+            <FieldError>Enter a correct Safaricom number.</FieldError>
           )}
         </FieldWrapper>
         <CheckoutManualProcess collapse={!state.manualCheckout}>
