@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useState, createRef, RefObject, useEffect } from "react";
 import { FieldProps, useField } from "formik";
 
@@ -84,15 +85,18 @@ const SelectField: React.FC<Partial<FieldProps> & Partial<IFormField>> = ({
   options,
   placeholder,
   name,
+  disabledIf,
 }) => {
   const [active, setActive] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [field, , helpers] = useField(name || "");
+  const disabledOn = useField(disabledIf?.key || "");
+  console.log(disabledOn);
 
   // Handle options when selected
-  const handleChange = (selected: OptionType) => {
-    setSelected(selected.value);
-    helpers.setValue(selected.value);
+  const handleChange = (selectedOption: OptionType) => {
+    setSelected(selectedOption.value);
+    helpers.setValue(selectedOption.value);
     setActive(false);
   };
 
@@ -116,8 +120,8 @@ const SelectField: React.FC<Partial<FieldProps> & Partial<IFormField>> = ({
 
   const label = (value: string) => {
     const option = options?.find((opt) => opt.value === value);
-    return option ? option.label : null
-  }
+    return option ? option.label : null;
+  };
 
   return (
     <SelectFormFieldWrapper active={active} ref={selectNode}>

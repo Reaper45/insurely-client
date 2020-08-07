@@ -79,7 +79,10 @@ const quotationFormSections: IFormSection[] = [
       firstName: Yup.string().required("First name is required"),
       lastName: Yup.string().required("Last name is required"),
       email: Yup.string().email("Invalid email"),
-      phoneNumber: Yup.number().required("Invalid value for phone number"),
+      phoneNumber: Yup.string().matches(new RegExp(/^(?:254|\+254|07|01)/), {
+        message: "Invalid phone number format",
+        excludeEmptyString: true,
+      }),
     }),
   },
   {
@@ -177,6 +180,10 @@ const quotationFormSections: IFormSection[] = [
           placeholder: "Type of cover",
           required: true,
           options: generateMonths(),
+          disabledIf: {
+            key: "typeOfCover",
+            value: "COMP",
+          },
         },
       ],
     },

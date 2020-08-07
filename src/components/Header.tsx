@@ -28,14 +28,15 @@ const NavWrapper = styled("nav")`
     > div {
       border-radius: 2rem;
       padding: 8px 15px;
-      background: ${(props) => props.theme.colors.light};
+      background: ${(props) => props.theme.colors.white};
+      border: solid 1px ${(props) => props.theme.colors.light};
       position: relative;
       left: -50%;
-      top: 40px;
+      top: 37px;
       transition-delay: 100ms;
       font-size: 0.75rem;
       @media (min-width: 481px) {
-        background: ${(props) => props.theme.colors.white};
+        border: none;
         position: initial;
         font-size: 1rem;
       }

@@ -15,6 +15,10 @@ declare global {
     children?: IField[];
     options?: OptionType[];
     classFieldName?: string;
+    disabledIf?: {
+      key: string;
+      value: string;
+    }
   }
 
   interface IMessage {

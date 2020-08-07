@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useReducer, useEffect } from "react";
 import { RouteComponentProps, Redirect } from "react-router-dom";
 import numeral from "numeral";

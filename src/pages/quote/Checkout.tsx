@@ -1,11 +1,13 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, { useReducer, useEffect } from "react";
 import numeral from "numeral";
 import { Redirect } from "react-router-dom";
 
 import styled from "emotion";
 import { checkout as pay, checkTransaction } from "lib/api";
+import { isValidSafaricomNumber } from "lib/validate";
 import Modal from "components/ui/Modal";
-import { Input, FieldWrapper, Message } from "components/ui";
+import { Input, FieldWrapper, Message, FieldError } from "components/ui";
 
 import { ReactComponent as CurrencyIcon } from "assets/icons/icon-currency-dollar.svg";
 import { ReactComponent as CheckCircleIcon } from "assets/icons/icon-check-circle.svg";
@@ -248,6 +250,9 @@ const Checkout: React.FC<{
     return <Redirect to="/quotations/complete" />;
   }
 
+  const isValidPhoneNumber = isValidSafaricomNumber(state.phoneNumber);
+
+  console.log({ isValidPhoneNumber });
   return (
     <Modal
       title="Checkout"
@@ -285,6 +290,7 @@ const Checkout: React.FC<{
             placeholder={state.phoneNumber}
             type="text"
             value={state.phoneNumber}
+            className={isValidPhoneNumber ? "" : "error"}
             onChange={(e) => {
               dispatch({
                 type: ActionTypes.phoneNumber,
@@ -301,6 +307,11 @@ const Checkout: React.FC<{
               <CheckCircleIcon />
             </div>
           </PhoneNumberLabel>
+          {!isValidPhoneNumber && (
+            <FieldError>
+              Enter a correct Safaricom number.
+            </FieldError>
+          )}
         </FieldWrapper>
         <CheckoutManualProcess collapse={!state.manualCheckout}>
           <div
