@@ -7,12 +7,13 @@ import { baseInputStyles } from "components/ui";
 
 import { ReactComponent as CheveronDown } from "assets/icons/icon-cheveron-down.svg";
 
-const SelectFormFieldWrapper = styled("div")<{ active: boolean }>`
+const SelectFormFieldWrapper = styled("div")<{ active: boolean; disabled?: boolean }>`
   ${baseInputStyles}
   border: solid 1px ${(props: any) =>
     props.active ? props.theme.colors.primary : props.theme.colors.light};
   color: ${(props) => props.theme.colors.gray};
   position: relative;
+  ${(props) => props.disabled && `pointer-events: none;`}
 `;
 
 const SelectFormFieldInput = styled("div")<{ active: boolean }>`
@@ -90,8 +91,10 @@ const SelectField: React.FC<Partial<FieldProps> & Partial<IFormField>> = ({
   const [active, setActive] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const [field, , helpers] = useField(name || "");
-  const disabledOn = useField(disabledIf?.key || "");
-  console.log(disabledOn);
+
+  // Disable field
+  const [disabledOn] = useField(disabledIf?.key || "");
+  const disabled = disabledIf && disabledOn.value === disabledIf?.value;
 
   // Handle options when selected
   const handleChange = (selectedOption: OptionType) => {
@@ -124,7 +127,11 @@ const SelectField: React.FC<Partial<FieldProps> & Partial<IFormField>> = ({
   };
 
   return (
-    <SelectFormFieldWrapper active={active} ref={selectNode}>
+    <SelectFormFieldWrapper
+      active={active}
+      ref={selectNode}
+      disabled={disabled}
+    >
       <SelectFormFieldInput active={active} onClick={() => setActive(!active)}>
         <span className="placeholder">{label(field.value) || placeholder}</span>
         <span className="icon">

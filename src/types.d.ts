@@ -17,7 +17,7 @@ declare global {
     classFieldName?: string;
     disabledIf?: {
       key: string;
-      value: string;
+      value?: string;
     }
   }
 

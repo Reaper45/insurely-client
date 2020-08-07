@@ -182,7 +182,7 @@ const quotationFormSections: IFormSection[] = [
           options: generateMonths(),
           disabledIf: {
             key: "typeOfCover",
-            value: "COMP",
+            value: process.env.REACT_APP_COMP_ID,
           },
         },
       ],

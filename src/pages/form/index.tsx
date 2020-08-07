@@ -233,7 +233,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
           onSubmit={handleFormSubmit}
           validationSchema={step.validationSchema}
         >
-          {({ values, handleSubmit }) => (
+          {({ values, handleSubmit, isValid, isSubmitting }) => (
             <div>
               <Form onSubmit={handleSubmit}>
                 <Container>
@@ -262,7 +262,11 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                         Back
                       </button>
                       <button
-                        disabled={phoneNumberState === PhoneNumberState.sending}
+                        disabled={
+                          phoneNumberState === PhoneNumberState.sending ||
+                          !isValid ||
+                          isSubmitting
+                        }
                         className="btn btn-primary"
                         type="submit"
                       >
