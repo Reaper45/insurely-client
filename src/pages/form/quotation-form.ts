@@ -51,13 +51,13 @@ const quotationFormSections: IFormSection[] = [
               name: "firstName",
               type: "text",
               placeholder: "First name",
-              // required: true,
+              required: true,
             },
             {
               name: "lastName",
               type: "text",
               placeholder: "Last name",
-              // required: true,
+              required: true,
             },
           ],
         },
@@ -66,12 +66,14 @@ const quotationFormSections: IFormSection[] = [
           type: "email",
           placeholder: "Email address",
           required: true,
+          inputMode: "email"
         },
         {
           name: "phoneNumber",
           type: "text",
           placeholder: "Phone Number",
           required: true,
+          inputMode: "tel"
         },
       ],
     },

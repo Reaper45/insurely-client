@@ -5,7 +5,7 @@ import numeral from "numeral";
 import swal from "sweetalert";
 
 import styled from "emotion";
-import { getQuotes, email } from "lib/api";
+import { getQuotes, emailQuote } from "lib/api";
 
 import PageLayout from "components/PageLayout";
 import { PageFooter, Container } from "components/ui";
@@ -258,7 +258,7 @@ const Quotes: React.FC<RouteComponentProps<
       payload: QuoteStates.sending,
     });
 
-    email({ quote: state.activeQuote, to: location.state.form.email })
+    emailQuote({ quote: state.activeQuote, to: location.state.form.email })
       .then(() => {
         swal({
           title: "Email sent!",
@@ -539,6 +539,7 @@ const Quotes: React.FC<RouteComponentProps<
             }}
             phoneNumber={location.state.form.phoneNumber}
             amount={numeral(state.activeQuote?.premium).format("0,0")}
+            quote={state.activeQuote}
           />
         </>
       )}

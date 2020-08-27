@@ -4,7 +4,7 @@ import numeral from "numeral";
 import { Redirect } from "react-router-dom";
 
 import styled from "emotion";
-import { checkout as pay, checkTransaction } from "lib/api";
+import { checkout as pay, checkTransaction, emailPayment } from "lib/api";
 import { isValidSafaricomNumber } from "lib/validate";
 import Modal from "components/ui/Modal";
 import { Input, FieldWrapper, Message, FieldError } from "components/ui";
@@ -170,6 +170,7 @@ const Checkout: React.FC<{
   close: () => void;
   amount: string;
   phoneNumber: string;
+  quote: QuoteType | null;
 }> = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -224,25 +225,32 @@ const Checkout: React.FC<{
       ) {
         clearInterval(refreshId);
       }
-      const { data } = await checkTransaction({
+      checkTransaction({
         amount: props.amount,
         phoneNumber: state.phoneNumber,
-      });
+      })
+        .then(({ data }) => {
+          if (data.received) {
+            stateHolder = PaymentStates.confirmed;
+            dispatch({
+              type: ActionTypes.payment,
+              payload: PaymentStates.confirmed,
+            });
+            return emailPayment({
+              to: "",
+              name: "",
+              quote: props.quote,
+              transaction_id: "",
+            });
+          }
+          stateHolder = PaymentStates.failed;
 
-      if (data.received) {
-        stateHolder = PaymentStates.confirmed;
-        dispatch({
-          type: ActionTypes.payment,
-          payload: PaymentStates.confirmed,
-        });
-      } else {
-        stateHolder = PaymentStates.failed;
-
-        dispatch({
-          type: ActionTypes.payment,
-          payload: PaymentStates.failed,
-        });
-      }
+          dispatch({
+            type: ActionTypes.payment,
+            payload: PaymentStates.failed,
+          });
+        })
+        .catch(console.error);
     }, 5000);
   };
 

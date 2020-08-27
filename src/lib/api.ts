@@ -3,22 +3,52 @@ import { phoneNumber as nomalizePhoneNumber } from "lib/normalizer";
 const headers = new Headers();
 headers.append("Content-Type", "application/json");
 
- const options: RequestInit = {
-    method: "POST",
-    headers,
-    redirect: "follow",
-  };
+const options: RequestInit = {
+  method: "POST",
+  headers,
+  redirect: "follow",
+};
 
 const mpesaApiUrl = process.env.REACT_APP_MPESA_API_URL;
 const appApiUrl = process.env.REACT_APP_API_URL;
 const callbackUrl = process.env.REACT_APP_MPESA_CALLBACK;
 
 //
-const email = async ({ quote, to }: { quote: QuoteType | null; to: string }) => {
-  const response = await fetch(`${process.env.REACT_APP_API_URL}/send/quote`, {
+const emailQuote = async ({
+  quote,
+  to,
+}: {
+  quote: QuoteType | null;
+  to: string;
+}) => {
+  const response = await fetch(`${process.env.REACT_APP_API_URL}/email/quote`, {
     ...options,
     body: JSON.stringify({ quote, to }),
   });
+  const data = await response.json();
+
+  return data;
+};
+
+//
+const emailPayment = async ({
+  quote,
+  to,
+  name,
+  transaction_id,
+}: {
+  quote: QuoteType | null;
+  to: string;
+  name: string;
+  transaction_id: string;
+}) => {
+  const response = await fetch(
+    `${process.env.REACT_APP_API_URL}/email/payment`,
+    {
+      ...options,
+      body: JSON.stringify({ quote, to, name, transaction_id }),
+    }
+  );
   const data = await response.json();
 
   return data;
@@ -42,7 +72,13 @@ const getQuotes = async ({
 };
 
 //
-const sendOtp = async ({ phoneNumber, name }: { name: string; phoneNumber: string }) => {
+const sendOtp = async ({
+  phoneNumber,
+  name,
+}: {
+  name: string;
+  phoneNumber: string;
+}) => {
   const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
   const response = await fetch(`${appApiUrl}/send-otp`, {
     ...options,
@@ -125,5 +161,6 @@ export {
   getQuotes,
   sendOtp,
   verifyCode,
-  email,
+  emailQuote,
+  emailPayment,
 };
