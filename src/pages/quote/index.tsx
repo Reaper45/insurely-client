@@ -537,7 +537,11 @@ const Quotes: React.FC<RouteComponentProps<
                 payload: QuoteStates.initial,
               });
             }}
-            phoneNumber={location.state.form.phoneNumber}
+            customer={{
+              phoneNumber: location.state.form.phoneNumber,
+              email: location.state.form.email,
+              name: location.state.form.firstName,
+            }}
             amount={numeral(state.activeQuote?.premium).format("0,0")}
             quote={state.activeQuote}
           />

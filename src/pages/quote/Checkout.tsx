@@ -169,7 +169,11 @@ const Checkout: React.FC<{
   show: boolean;
   close: () => void;
   amount: string;
-  phoneNumber: string;
+  customer: {
+    phoneNumber: string;
+    email: string;
+    name: string;
+  };
   quote: QuoteType | null;
 }> = (props) => {
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -177,7 +181,7 @@ const Checkout: React.FC<{
   useEffect(() => {
     dispatch({
       type: ActionTypes.phoneNumber,
-      payload: props.phoneNumber,
+      payload: props.customer.phoneNumber,
     });
   }, []);
 
@@ -204,7 +208,8 @@ const Checkout: React.FC<{
         type: ActionTypes.checkoutId,
         payload: data.MPESA_RESPONSE.CheckoutRequestID,
       });
-      confirmPayment();
+      // Wait 1 min then try confirming payment
+      setTimeout(confirmPayment, 30000);
     }
   };
 
@@ -237,10 +242,10 @@ const Checkout: React.FC<{
               payload: PaymentStates.confirmed,
             });
             return emailPayment({
-              to: "",
-              name: "",
+              to: props.customer.email,
+              customer_name: props.customer.name,
               quote: props.quote,
-              transaction_id: "",
+              transaction_id: data.transaction.id,
             });
           }
           stateHolder = PaymentStates.failed;

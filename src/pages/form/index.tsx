@@ -233,7 +233,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
           onSubmit={handleFormSubmit}
           validationSchema={step.validationSchema}
         >
-          {({ values, handleSubmit, isValid, isSubmitting }) => (
+          {({ values, handleSubmit, isValid, isSubmitting, dirty }) => (
             <div>
               <Form onSubmit={handleSubmit}>
                 <Container>
@@ -265,7 +265,7 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                         disabled={
                           phoneNumberState === PhoneNumberState.sending ||
                           !isValid ||
-                          isSubmitting
+                          isSubmitting // <- TODO: Disable when form isn't dirty
                         }
                         className="btn btn-primary"
                         type="submit"

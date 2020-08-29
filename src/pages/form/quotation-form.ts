@@ -205,13 +205,13 @@ export interface IQuotationFormValues {
 }
 
 export const initialValues: Partial<IQuotationFormValues> = {
-  firstName: "",
-  lastName: "",
-  email: "",
-  phoneNumber: "",
+  firstName: "Joram",
+  lastName: "Mwashighadi",
+  email: "jomwashighadi@gmail.com",
+  phoneNumber: "0719747908",
   vehicleUse: "",
-  yearOfManufacture: "",
-  sumInsured: "",
+  yearOfManufacture: "2015",
+  sumInsured: "800000",
   typeOfCover: "",
   duration: "12",
 };
