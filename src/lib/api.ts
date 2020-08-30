@@ -33,20 +33,26 @@ const emailQuote = async ({
 //
 const emailPayment = async ({
   quote,
-  to,
-  customer_name,
+  name,
+  email,
+  phone_number,
   transaction_id,
 }: {
   quote: QuoteType | null;
-  to: string;
-  customer_name: string;
+  name: string;
+  email: string;
+  phone_number: string;
   transaction_id: string;
 }) => {
   const response = await fetch(
     `${process.env.REACT_APP_API_URL}/email/payment`,
     {
       ...options,
-      body: JSON.stringify({ quote, to, customer_name, transaction_id }),
+      body: JSON.stringify({
+        quote,
+        customer: { name, email, phone_number },
+        transaction_id,
+      }),
     }
   );
   const data = await response.json();

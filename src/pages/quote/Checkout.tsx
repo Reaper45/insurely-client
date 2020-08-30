@@ -229,34 +229,38 @@ const Checkout: React.FC<{
         stateHolder === PaymentStates.failed
       ) {
         clearInterval(refreshId);
-      }
-      checkTransaction({
-        amount: props.amount,
-        phoneNumber: state.phoneNumber,
-      })
-        .then(({ data }) => {
-          if (data.received) {
-            stateHolder = PaymentStates.confirmed;
+      } else {
+        checkTransaction({
+          amount: props.amount,
+          phoneNumber: state.phoneNumber,
+        })
+          .then(({ data }) => {
+            console.log({ pollCount });
+            if (data.received && data.transaction !== null) {
+              console.log({ data });
+              stateHolder = PaymentStates.confirmed;
+              dispatch({
+                type: ActionTypes.payment,
+                payload: PaymentStates.confirmed,
+              });
+              return emailPayment({
+                email: props.customer.email,
+                name: props.customer.name,
+                phone_number: props.customer.phoneNumber,
+                quote: props.quote,
+                transaction_id: data.transaction.id,
+              });
+            }
+            stateHolder = PaymentStates.failed;
+
             dispatch({
               type: ActionTypes.payment,
-              payload: PaymentStates.confirmed,
+              payload: PaymentStates.failed,
             });
-            return emailPayment({
-              to: props.customer.email,
-              customer_name: props.customer.name,
-              quote: props.quote,
-              transaction_id: data.transaction.id,
-            });
-          }
-          stateHolder = PaymentStates.failed;
-
-          dispatch({
-            type: ActionTypes.payment,
-            payload: PaymentStates.failed,
-          });
-        })
-        .catch(console.error);
-    }, 5000);
+          })
+          .catch(console.error);
+      }
+    }, 10000);
   };
 
   if (state.payment === PaymentStates.confirmed) {
