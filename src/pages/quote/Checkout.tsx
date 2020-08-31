@@ -208,8 +208,8 @@ const Checkout: React.FC<{
         type: ActionTypes.checkoutId,
         payload: data.MPESA_RESPONSE.CheckoutRequestID,
       });
-      // Wait 1 min then try confirming payment
-      setTimeout(confirmPayment, 30000);
+      // Wait 45 sec then try confirming payment
+      setTimeout(confirmPayment, 45000);
     }
   };
 
@@ -224,7 +224,7 @@ const Checkout: React.FC<{
     const refreshId = setInterval(async () => {
       pollCount += 1;
       if (
-        pollCount === 12 ||
+        pollCount === 6 ||
         stateHolder === PaymentStates.confirmed ||
         stateHolder === PaymentStates.failed
       ) {
@@ -295,7 +295,7 @@ const Checkout: React.FC<{
               {state.payment === PaymentStates.success
                 ? "Success. Payment notification sent."
                 : state.payment === PaymentStates.failed
-                ? "Failed. Complete manually!"
+                ? "Could not complete! Pay & confirm manually!"
                 : ""}
             </div>
             {state.payment === PaymentStates.success ? (
@@ -382,6 +382,10 @@ const Checkout: React.FC<{
               onClick={initiatePayment}
               className="btn btn-primary w-full icon-left"
               type="button"
+              disabled={
+                state.payment === PaymentStates.confirming ||
+                state.payment === PaymentStates.processing
+              }
             >
               <CurrencyIcon />
               Complete payment: Ksh. {numeral(props.amount).format("0,0")}

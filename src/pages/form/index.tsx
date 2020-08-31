@@ -252,20 +252,25 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                 <PageFooter>
                   <Container>
                     <FormContainer className="flex justify-space-between">
-                      <button
-                        onClick={() => prev()}
-                        disabled={stepNumber === 1}
-                        className="btn btn-primary link icon-left"
-                        type="button"
-                      >
-                        <CheveronLeftIcon />
-                        Back
-                      </button>
+                      <div>
+                        {stepNumber !== 1 && (
+                          <button
+                            onClick={() => prev()}
+                            disabled={stepNumber === 1}
+                            className="btn btn-primary link icon-left"
+                            type="button"
+                          >
+                            <CheveronLeftIcon />
+                            Back
+                          </button>
+                        )}
+                      </div>
                       <button
                         disabled={
                           phoneNumberState === PhoneNumberState.sending ||
                           !isValid ||
-                          isSubmitting || !dirty
+                          isSubmitting ||
+                          !dirty
                         }
                         className="btn btn-primary"
                         type="submit"
