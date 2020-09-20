@@ -5,7 +5,13 @@ import { RouteChildrenProps } from "react-router-dom";
 import styled from "emotion";
 import { sendOtp, verifyCode } from "lib/api";
 
-import { Container, PageFooter, Input, FieldWrapper, Message } from "components/ui";
+import {
+  Container,
+  PageFooter,
+  Input,
+  FieldWrapper,
+  Message,
+} from "components/ui";
 import PageLayout from "components/PageLayout";
 import Modal from "components/ui/Modal";
 import FormSection from "./FormSection";
@@ -129,11 +135,7 @@ const reducer = (state: IState, action: IAction): IState => {
 
 const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const {
-    phoneNumberState,
-    showOTPModal,
-    stepNumber,
-  } = state;
+  const { phoneNumberState, showOTPModal, stepNumber } = state;
 
   const step = quotationForm[stepNumber - 1];
   const isLastStep = stepNumber === quotationForm.length;
@@ -206,7 +208,10 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
       payload: PhoneNumberState.verifying,
     });
 
-    const { data } = await verifyCode({ code: state.otp, phoneNumber: state.phoneNumber});
+    const { data } = await verifyCode({
+      code: state.otp,
+      phoneNumber: state.phoneNumber,
+    });
     if (data.verified) {
       dispatch({
         type: ActionTypes.phoneNumberState,

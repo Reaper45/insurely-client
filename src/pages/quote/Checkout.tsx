@@ -352,7 +352,7 @@ const Checkout: React.FC<{
                 In your M-PESA, select <b>Pay Bill</b> option
               </li>
               <li>
-                Enter Business number <b>000000</b>
+                Enter Business number <b>4044237</b>
               </li>
               <li>
                 Enter Account number <b>{state.phoneNumber}</b>
@@ -382,10 +382,7 @@ const Checkout: React.FC<{
               onClick={initiatePayment}
               className="btn btn-primary w-full icon-left"
               type="button"
-              disabled={
-                state.payment === PaymentStates.confirming ||
-                state.payment === PaymentStates.processing
-              }
+              disabled={state.payment !== PaymentStates.pending}
             >
               <CurrencyIcon />
               Complete payment: Ksh. {numeral(props.amount).format("0,0")}

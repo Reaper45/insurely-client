@@ -1,5 +1,5 @@
 import React from "react";
-import numeral from 'numeral'
+import numeral from "numeral";
 
 import styled from "emotion";
 import CheckboxInput from "components/ui/CheckboxInput";
@@ -53,7 +53,10 @@ const ProductViewWrapper = styled("div")<{
     flex-grow: 1;
     margin-left: 1rem;
     .name {
+      white-space: nowrap;
       b {
+        overflow: hidden;
+        text-overflow: ellipsis;
         font-size: 12px;
         @media (min-width: 768px) {
           font-size: 1rem;
