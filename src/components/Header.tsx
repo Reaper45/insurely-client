@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 import styled from "emotion";
 import { Container } from "./ui";
@@ -11,6 +11,7 @@ const HeaderWrapper = styled("header")`
   border-bottom: solid 1px ${(props) => props.theme.colors.light};
   position: fixed;
   width: 100%;
+  background: #fff;
 `;
 
 const NavWrapper = styled("nav")`
@@ -49,6 +50,7 @@ const NavWrapper = styled("nav")`
     color: ${(props) => props.theme.colors.secondary};
     text-align: right;
     min-width: 113px;
+    text-decoration: none;
     svg {
       fill: ${(props) => props.theme.colors.secondary};
       vertical-align: middle;
@@ -86,10 +88,10 @@ const Header: React.FC<{
           )}
           {cancelable && (
             <div>
-              <button className="btn-close">
+              <NavLink to="/" className="btn-close">
                 Cancel
                 <CloseIcon />
-              </button>
+              </NavLink>
             </div>
           )}
         </NavWrapper>
