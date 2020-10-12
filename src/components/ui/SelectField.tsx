@@ -42,7 +42,7 @@ const SelectFormFieldInput = styled("div")<{ active: boolean }>`
   }
 `;
 
-const SelectFormFieldOptions = styled("div")<{ active: boolean }>`
+const SelectFormFieldOptions = styled("ul")<{ active: boolean }>`
   background: #fff;
   position: absolute;
   z-index: ${(props) => (props.active ? "10" : "-1")};
@@ -64,7 +64,7 @@ const SelectFormFieldOptions = styled("div")<{ active: boolean }>`
   }
 `;
 
-const SelectFormFieldOption = styled("div")<{ selected?: boolean }>`
+const SelectFormFieldOption = styled("li")<{ selected?: boolean }>`
   font-weight: ${(props) => (props.selected ? "bold" : "normal")};
   color: ${(props) =>
     props.selected ? props.theme.colors.dark : props.theme.colors.secondary};
@@ -143,7 +143,7 @@ const SelectField: React.FC<Partial<FieldProps> & Partial<IFormField>> = ({
           <SelectFormFieldOption
             key={opt.key}
             selected={opt.value === selected}
-            onClick={() => handleChange(opt)}
+            onMouseDown={() => handleChange(opt)}
           >
             {opt.label}
           </SelectFormFieldOption>

@@ -274,8 +274,8 @@ const QuotationForm: React.FC<RouteChildrenProps> = ({ history }) => {
                         disabled={
                           phoneNumberState === PhoneNumberState.sending ||
                           !isValid ||
-                          isSubmitting ||
-                          !dirty
+                          isSubmitting
+                          // !dirty <- TODO: Uncomment
                         }
                         className="btn btn-primary"
                         type="submit"

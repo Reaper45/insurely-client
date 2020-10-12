@@ -57,8 +57,7 @@ const OptionalBenefit: React.FC<{
   handleChange: handleBenefitChangeFn;
   benefit: Partial<BenefitType>;
 }> = ({ benefit, handleChange }) => {
-  const tariff = benefit!.tariffs ? benefit!.tariffs[0] : null;
-  // console.log({ tariff });
+  // const tariff = benefit!.tariffs ? benefit!.tariffs[0] : null;
   return (
     <OptionalBenefitWrapper>
       <CheckboxInput
