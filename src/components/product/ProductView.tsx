@@ -97,6 +97,9 @@ const ProductViewWrapper = styled("div")<{
       fill: ${(props) =>
         props.active ? props.theme.colors.primary : props.theme.colors.light};
     }
+    @media (max-width: 480px) {
+      display: none;
+    }
   }
 `;
 

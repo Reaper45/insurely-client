@@ -17,7 +17,6 @@ import Loader from "components/ui/Loader";
 import { IQuotationFormValues } from "pages/form/quotation-form";
 import Checkout from "./Checkout";
 
-import { ReactComponent as CheveronLeftIcon } from "assets/icons/icon-cheveron-left.svg";
 import { ReactComponent as NoDataIcon } from "assets/icons/no-data.svg";
 
 const QuotesWrapper = styled("div")`
@@ -80,7 +79,7 @@ const ProductSummary = styled("div")<{ showDetails: boolean }>`
   .floating-amount {
     position: absolute;
     left: 50%;
-    bottom: 18%;
+    bottom: 20%;
     .amount {
       position: relative;
       left: -50%;
@@ -489,14 +488,7 @@ const Quotes: React.FC<RouteComponentProps<
           </Container>
           <PageFooter>
             <Container className="flex justify-space-between">
-              <button
-                // onClick={() => prev()}
-                className="btn btn-primary link icon-left sm-hidden"
-                type="button"
-              >
-                <CheveronLeftIcon />
-                Back
-              </button>
+              <div />
               <div className="flex justify-space-between sm-flex-1">
                 <button
                   onClick={sendEmail}
