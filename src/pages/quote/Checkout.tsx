@@ -321,7 +321,7 @@ const Checkout: React.FC<{
           })
           .catch(console.error);
       }
-    }, 10000);
+    }, 300);
   };
 
   if (state.payment === PaymentStates.confirmed) {
