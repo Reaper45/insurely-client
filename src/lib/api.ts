@@ -11,7 +11,7 @@ const options: RequestInit = {
 
 const mpesaApiUrl = process.env.REACT_APP_MPESA_API_URL;
 const appApiUrl = process.env.REACT_APP_API_URL;
-const callbackUrl = process.env.REACT_APP_MPESA_CALLBACK;
+const stkCallbackUrl = process.env.REACT_APP_MPESA_STK_CALLBACK;
 
 //
 const emailQuote = async ({
@@ -125,7 +125,7 @@ const checkout = async ({
   const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
   const payload = {
     amount: 1,
-    callbackURL: callbackUrl,
+    callbackURL: stkCallbackUrl,
     accountRef: "Other",
     phoneNumber: nomalizedPhoneNumber,
     transactionDescription: "Policy payment via insurely.cc",
@@ -161,9 +161,34 @@ const checkTransaction = async ({
   return data;
 };
 
+//
+const checkC2BTransaction = async ({
+  amount,
+  phoneNumber,
+  mpesaRef
+}: {
+  amount: string;
+  phoneNumber: string;
+  mpesaRef: string;
+}) => {
+  const nomalizedPhoneNumber = nomalizePhoneNumber(phoneNumber);
+  const response = await fetch(`${appApiUrl}/check-c2b-transaction`, {
+    ...options,
+    body: JSON.stringify({
+      amount: 1,
+      phone_number: nomalizedPhoneNumber,
+      mpesa_ref: mpesaRef,
+    }),
+  });
+  const data = await response.json();
+
+  return data;
+};
+
 export {
   checkout,
   checkTransaction,
+  checkC2BTransaction,
   getQuotes,
   sendOtp,
   verifyCode,

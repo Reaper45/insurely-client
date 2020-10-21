@@ -4,7 +4,7 @@ import numeral from "numeral";
 import { Redirect } from "react-router-dom";
 
 import styled from "emotion";
-import { checkout as pay, checkTransaction, emailPayment } from "lib/api";
+import { checkC2BTransaction, checkout as pay, checkTransaction, emailPayment } from "lib/api";
 import { isValidSafaricomNumber } from "lib/validate";
 import Modal from "components/ui/Modal";
 import { Input, FieldWrapper, Message, FieldError } from "components/ui";
@@ -129,6 +129,7 @@ interface IState {
   manualCheckout: boolean;
   payment: PaymentStates;
   checkoutId: string;
+  mpesaRef: string;
 }
 
 const initialState: IState = {
@@ -136,6 +137,7 @@ const initialState: IState = {
   manualCheckout: false,
   payment: PaymentStates.pending,
   checkoutId: "",
+  mpesaRef: ""
 };
 
 enum ActionTypes {
@@ -143,6 +145,7 @@ enum ActionTypes {
   manualCheckout = "MANUAL_CHECKOUT",
   payment = "PAYMENT_STATE",
   checkoutId = "CHECKOUT_ID",
+  mpesaRef = "MPESA_REF",
 }
 
 interface IAction {
@@ -160,6 +163,8 @@ const reducer = (state: IState, action: IAction): IState => {
       return { ...state, payment: action.payload };
     case ActionTypes.checkoutId:
       return { ...state, checkoutId: action.payload };
+    case ActionTypes.mpesaRef:
+      return { ...state, mpesaRef: action.payload };
     default:
       return state;
   }
@@ -233,6 +238,62 @@ const Checkout: React.FC<{
         checkTransaction({
           amount: props.amount,
           phoneNumber: state.phoneNumber,
+        })
+          .then(({ data }) => {
+            console.log({ pollCount });
+            if (data.received && data.transaction !== null) {
+              console.log({ data });
+              stateHolder = PaymentStates.confirmed;
+              dispatch({
+                type: ActionTypes.payment,
+                payload: PaymentStates.confirmed,
+              });
+              return emailPayment({
+                email: props.customer.email,
+                name: props.customer.name,
+                phone_number: props.customer.phoneNumber,
+                quote: props.quote,
+                transaction_id: data.transaction.id,
+              });
+            }
+            stateHolder = PaymentStates.failed;
+
+            dispatch({
+              type: ActionTypes.payment,
+              payload: PaymentStates.failed,
+            });
+          })
+          .catch(console.error);
+      }
+    }, 10000);
+  };
+
+  const confirmC2BPayment = () => {
+    dispatch({
+      type: ActionTypes.payment,
+      payload: PaymentStates.confirming,
+    });
+
+    let pollCount = 0;
+    let stateHolder = state.payment;
+    const refreshId = setInterval(async () => {
+      pollCount += 1;
+      if (
+        pollCount === 6 ||
+        stateHolder === PaymentStates.confirmed ||
+        stateHolder === PaymentStates.failed
+      ) {
+        clearInterval(refreshId);
+      } else {
+        console.log({
+          amount: props.amount,
+          phoneNumber: state.phoneNumber,
+          mpesaRef: state.mpesaRef,
+        });
+        checkC2BTransaction({
+          amount: "1",//props.amount,
+          phoneNumber: state.phoneNumber,
+          mpesaRef: state.mpesaRef
         })
           .then(({ data }) => {
             console.log({ pollCount });
@@ -362,11 +423,24 @@ const Checkout: React.FC<{
               </li>
               <li>Enter your M-PESA PIN and Send</li>
               <li>You will receive a confirmation SMS from M-PESA</li>
-              <li>Enter the transaction code & click to confirm payment.</li>
+              <li>
+                Enter the transaction code &amp; click to confirm payment.
+              </li>
             </ol>
             <TransactionCodeField className="flex justify-center align-stretch">
-              <Input name="code" placeholder="M-PESA transaction code" />
-              <button className="btn btn-primary">Confirm</button>
+              <Input
+                name="code"
+                placeholder="M-PESA transaction code"
+                onChange={(e) => {
+                  dispatch({
+                    type: ActionTypes.mpesaRef,
+                    payload: e.currentTarget.value,
+                  });
+                }}
+              />
+              <button className="btn btn-primary" onClick={confirmC2BPayment}>
+                Confirm
+              </button>
             </TransactionCodeField>
           </div>
         </CheckoutManualProcess>
