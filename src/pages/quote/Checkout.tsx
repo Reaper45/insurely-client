@@ -291,7 +291,7 @@ const Checkout: React.FC<{
           mpesaRef: state.mpesaRef,
         });
         checkC2BTransaction({
-          amount: "1",//props.amount,
+          amount: "1", // props.amount,
           phoneNumber: state.phoneNumber,
           mpesaRef: state.mpesaRef
         })

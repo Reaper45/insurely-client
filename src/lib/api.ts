@@ -16,14 +16,18 @@ const stkCallbackUrl = process.env.REACT_APP_MPESA_STK_CALLBACK;
 //
 const emailQuote = async ({
   quote,
-  to,
+  email,
+  name,
+  phoneNumber,
 }: {
   quote: QuoteType | null;
-  to: string;
+  email: string;
+  name: string;
+  phoneNumber: string;
 }) => {
   const response = await fetch(`${process.env.REACT_APP_API_URL}/email/quote`, {
     ...options,
-    body: JSON.stringify({ quote, to }),
+    body: JSON.stringify({ quote, email, name, phoneNumber }),
   });
   const data = await response.json();
 

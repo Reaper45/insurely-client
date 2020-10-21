@@ -257,7 +257,12 @@ const Quotes: React.FC<RouteComponentProps<
       payload: QuoteStates.sending,
     });
 
-    emailQuote({ quote: state.activeQuote, to: location.state.form.email })
+    emailQuote({
+      quote: state.activeQuote,
+      name: `${location.state.form.firstName} ${location.state.form.lastName}`,
+      phoneNumber: location.state.form.phoneNumber,
+      email: location.state.form.email,
+    })
       .then(() => {
         swal({
           title: "Email sent!",
