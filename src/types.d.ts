@@ -67,6 +67,9 @@ declare global {
     limit?: string;
     description?: string;
     is_adjustable?: boolean;
+    min?: number;
+    max?: number;
+    sumInsured?: string;
   };
 
   export type ProductType = {

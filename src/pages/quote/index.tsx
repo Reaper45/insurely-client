@@ -235,7 +235,7 @@ const reducer = (state: IState, action: IAction): IState => {
 };
 
 const optionalBenefits = (benefits: BenefitType[]): BenefitType[] =>
-  benefits.filter((benefit) => benefit.is_optional);
+  benefits.filter((benefit) => benefit.is_optional || benefit.is_adjustable);
 
 const Quotes: React.FC<RouteComponentProps<
   any,
@@ -292,13 +292,22 @@ const Quotes: React.FC<RouteComponentProps<
 
   const calcBenefitPremium = (benefit: Partial<BenefitType>): number => {
     let premium = 0;
+
     if (benefit?.tariffs) {
       const tariff = benefit.tariffs[0];
 
       if (tariff.is_percentage && tariff.value) {
-        premium =
-          (parseInt(tariff.value, 10) / 100) *
-          parseInt(location.state.form.sumInsured, 10);
+        if (
+          benefit.min &&
+          benefit?.sumInsured &&
+          parseInt(benefit?.sumInsured, 10) > benefit.min
+        ) {
+          premium =
+            (parseInt(tariff.value, 10) / 100) *
+            (parseInt(benefit?.sumInsured, 10) - benefit.min);
+        } else {
+          premium = 0;
+        }
       } else {
         premium = tariff.value ? parseInt(tariff.value, 10) : 0;
       }
@@ -330,17 +339,28 @@ const Quotes: React.FC<RouteComponentProps<
     selected,
   }) => {
     const premium = calcBenefitPremium(benefit);
+    const found = state.optionalBenefits.find((ben) => ben.id === benefit.id);
 
     if (selected) {
       // Add to selected benefit array
-      dispatch({
-        type: ActionTypes.addOptionalBenefits,
-        payload: {
-          id: benefit.id,
-          name: benefit.name,
-          premium,
-        },
-      });
+      const payload = {
+        id: benefit.id,
+        name: benefit.name,
+        premium,
+      };
+
+      if (found) {
+        dispatch({
+          type: ActionTypes.addOptionalBenefits,
+          payload,
+        });
+      } else {
+        dispatch({
+          type: ActionTypes.removeOptionalBenefits,
+          payload,
+        });
+      }
+
       const updatedActiveQuote = calculateUpdateTotalPremium(
         state.activeQuote,
         premium

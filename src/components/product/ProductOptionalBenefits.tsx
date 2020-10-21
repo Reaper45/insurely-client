@@ -1,4 +1,4 @@
-import React from "react";
+import React, { ChangeEvent, useState } from "react";
 
 import styled from "emotion";
 
@@ -45,7 +45,10 @@ const BenefitInput = styled(Input)`
 `;
 
 declare global {
-  type handleBenefitChangeFn = (props: { benefit: Partial<BenefitType>, selected: boolean }) => void;
+  type handleBenefitChangeFn = (props: {
+    benefit: Partial<BenefitType>;
+    selected: boolean;
+  }) => void;
 }
 
 interface IProductOptionalBenefitsProps {
@@ -57,25 +60,46 @@ const OptionalBenefit: React.FC<{
   handleChange: handleBenefitChangeFn;
   benefit: Partial<BenefitType>;
 }> = ({ benefit, handleChange }) => {
-  // const tariff = benefit!.tariffs ? benefit!.tariffs[0] : null;
+  const [sumInsured, setSumInsured] = useState("");
+  const [checked, setChecked] = useState(false);
+
+  // if (benefit!.is_adjustable) {
+  //   console.log({ benefit });
+  // }
+
+  const handleOnCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.currentTarget!.checked;
+    setChecked(value);
+
+    handleChange({
+      benefit: { ...benefit, sumInsured },
+      selected: value,
+    });
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.currentTarget!.value;
+    setSumInsured(value);
+    handleChange({
+      benefit: { ...benefit, sumInsured: value },
+      selected: checked,
+    });
+  };
+
   return (
     <OptionalBenefitWrapper>
-      <CheckboxInput
-        label={benefit!.name}
-        onChange={(e) => {
-          handleChange({ benefit, selected: e.currentTarget!.checked });
-        }}
-      />
+      <CheckboxInput label={benefit!.name} onChange={handleOnCheck} />
       {benefit!.description && (
         <div className="description">{benefit!.description}</div>
       )}
-      {benefit!.is_adjustable && (
+      {benefit!.is_adjustable && checked && (
         <div className="form">
           <FieldWrapper style={{ marginBottom: "0px" }}>
             <BenefitInput
               name="sumInsured"
               placeholder="Estimated value"
-              onChange={console.log}
+              value={sumInsured}
+              onChange={handleInputChange}
             />
             <span className="label">KSH</span>
           </FieldWrapper>
