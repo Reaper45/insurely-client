@@ -56,5 +56,8 @@
     "source-map-loader": "^1.0.1",
     "ts-loader": "^8.0.1",
     "tslint": "^6.1.2"
+  },
+  "engines": {
+    "node": "15.*"
   }
 }
